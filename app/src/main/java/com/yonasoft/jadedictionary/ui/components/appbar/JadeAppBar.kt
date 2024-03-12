@@ -34,7 +34,6 @@ fun JadeAppBar(scope: CoroutineScope, drawerState: DrawerState, navController: N
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateUp = currentBackStackEntry != null && navController.previousBackStackEntry != null
 
-
     CenterAlignedTopAppBar(
         modifier = Modifier.shadow(12.dp),
         title = {
