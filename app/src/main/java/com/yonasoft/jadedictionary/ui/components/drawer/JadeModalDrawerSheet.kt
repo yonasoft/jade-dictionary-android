@@ -34,7 +34,13 @@ fun JadeModalDrawerSheet(
                     item = item,
                     onClickItem = {
                         onSelectItem(index)
-                        navController.navigate(item.destination)
+                        navController.navigate(item.destination) {
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            restoreState = true
+                        }
                     },
                 )
             }
