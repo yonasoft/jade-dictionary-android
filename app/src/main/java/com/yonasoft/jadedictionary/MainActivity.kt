@@ -84,7 +84,7 @@ fun JadeDictionaryApp() {
                         navController = navController
                     )
                 },
-                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+                modifier = Modifier
             ) {
                 Surface(modifier = Modifier.padding(it)) {
                     setupNavigation(navController = navController)

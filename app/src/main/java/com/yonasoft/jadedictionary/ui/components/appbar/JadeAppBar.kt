@@ -58,8 +58,8 @@ fun JadeAppBar(scope: CoroutineScope, drawerState: DrawerState, navController: N
                     navController.navigateUp()
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Localized description",
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Arrow Back",
                     )
                 }
             }
