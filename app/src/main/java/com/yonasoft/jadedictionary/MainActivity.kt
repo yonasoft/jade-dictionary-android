@@ -48,9 +48,6 @@ fun JadeDictionaryApp() {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
 
-    //Setup navigation before displaying the screen
-    //Jade app bar's up button rendering needs the graph being set before getting
-
     val navDrawerItems: List<NavigationItem> = NavItems()
     var selectedItemIndex by rememberSaveable {
         mutableIntStateOf(0)

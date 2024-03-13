@@ -23,7 +23,20 @@ interface WordDao {
     )
     fun searchWordByHanZi(query: String): Flow<List<Word>>
 
-    @Query("SELECT *, CASE WHEN definition LIKE :query THEN 1 ELSE 0 END as relevance FROM words WHERE definition LIKE '%' || :query || '%' ORDER BY relevance DESC, LENGTH(definition) ASC")
+    @Query(
+        """
+    SELECT *, 
+        CASE 
+            WHEN definition = :query THEN 3 
+            WHEN definition LIKE :query || '%' THEN 2 
+            WHEN definition LIKE '%' || :query || '%' THEN 1 
+            ELSE 0 
+        END as relevance 
+    FROM words 
+    WHERE definition LIKE '%' || :query || '%' 
+    ORDER BY relevance DESC, LENGTH(definition) ASC
+"""
+    )
     fun searchWordByDefinition(query: String): Flow<List<Word>>
 
     @Query("SELECT * FROM words WHERE pinyin LIKE :query")
