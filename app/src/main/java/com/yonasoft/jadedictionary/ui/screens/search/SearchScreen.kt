@@ -16,31 +16,36 @@ import com.yonasoft.jadedictionary.ui.components.searchbar.JadeSearchBar
 @Composable
 fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
 
-    var query = viewModel.searchQuery.value
-    var active = viewModel.active.value
+    val query = viewModel.searchQuery
+    val active = viewModel.active
     val history = viewModel.history.collectAsState()
-
     val searchResults = viewModel.searchResults.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         JadeSearchBar(
-            query = query,
-            active = active,
+            query = query.value,
+            active = active.value,
             onSearch = {
-                viewModel.onSearch()
+                viewModel.onSearch(it)
+                viewModel.addToHistory(it)
+                query.value = ""
+                active.value = false
             },
             changeQuery = {
-                query = it
+                query.value = it
             },
-            changeActive = { active = it }
+            changeActive = {
+                active.value = it
+            }
         ) {
             history.value.forEachIndexed { index, it ->
                 HistoryRow(
-                    index = index, text = it,
+                    index = index,
+                    text = it,
                     onClick = {
-                        viewModel.searchQuery.value = it
+                        query.value = it
                     },
                     onRemove = {
                         viewModel.removeFromHistory(

@@ -21,9 +21,10 @@ fun JadeSearchBar(
     onSearch: (query: String) -> Unit,
     changeQuery: (query: String) -> Unit,
     changeActive: (iSActive: Boolean) -> Unit,
-    content:  @Composable() (ColumnScope.() -> Unit),
+    content: @Composable() (ColumnScope.() -> Unit),
 ) {
-    SearchBar(modifier = Modifier.fillMaxWidth(),
+    SearchBar(
+        modifier = Modifier.fillMaxWidth(),
         query = query,
         onQueryChange = {
             changeQuery(it)
@@ -51,7 +52,8 @@ fun JadeSearchBar(
                 }, imageVector = Icons.Default.Close, contentDescription = "Close Icon"
             )
 
-        }) {
-        content
+        },
+    ) {
+        content()
     }
 }

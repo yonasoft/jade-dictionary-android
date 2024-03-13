@@ -21,12 +21,13 @@ class SearchScreenViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-    val searchQuery = mutableStateOf("")
+
     private val _searchResults = MutableStateFlow<List<Word>>(emptyList())
-    val searchResults = _searchResults.asStateFlow()
-    val active = mutableStateOf(false)
     private val _history = MutableStateFlow<List<String>>(emptyList())
+    val searchQuery = mutableStateOf("")
     val history = _history.asStateFlow()
+    val active = mutableStateOf(false)
+    val searchResults = _searchResults.asStateFlow()
 
     init {
         getHistory()
