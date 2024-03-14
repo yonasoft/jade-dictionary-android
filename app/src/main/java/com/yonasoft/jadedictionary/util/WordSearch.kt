@@ -6,8 +6,10 @@ fun determineStringType(input: String): StringType {
     if (trimmedInput.isEmpty()) return StringType.English
 
     val hanziPattern = Regex("[\\u3400-\\u9FBF]")
-    val pinyinPatternWithNumbers = Regex("[a-zA-ZüÜ]+[1-5]")
-    val pinyinPatternWithTones = Regex("(\\b[a-zA-ZüÜ]*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]\\b)")
+    // Allow pinyin numbers anywhere in the string without requiring space boundaries.
+    val pinyinPatternWithNumbers = Regex("[a-zA-ZüÜ]+[1-5]+")
+    // Adjusted to match accented vowels anywhere without strict word boundaries.
+    val pinyinPatternWithTones = Regex("[a-zA-ZüÜ]*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]+[a-zA-ZüÜ]*")
 
     return when {
         hanziPattern.containsMatchIn(trimmedInput) -> StringType.Hanzi
@@ -15,7 +17,6 @@ fun determineStringType(input: String): StringType {
         else -> StringType.English
     }
 }
-
 
 fun convertToneMarksToNumbers(input: String): String {
     val toneMarksToNumbers = mapOf(
