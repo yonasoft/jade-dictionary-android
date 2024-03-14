@@ -39,10 +39,17 @@ interface WordDao {
     )
     fun searchWordByDefinition(query: String): Flow<List<Word>>
 
-    @Query("SELECT * FROM words WHERE pinyin LIKE :query")
-    fun searchWordByPinYin(
-        query: String
-    ): Flow<List<Word>>
+    @Query("""
+        SELECT *, 
+            CASE 
+                WHEN pinyin = :query THEN 1 
+                ELSE 0 
+            END as relevance 
+        FROM words 
+        WHERE pinyin LIKE '%' || :query || '%' 
+        ORDER BY relevance DESC, LENGTH(pinyin) ASC
+    """)
+    fun searchWordByPinYin(query: String): Flow<List<Word>>
 
     @Query("SELECT * FROM words LIMIT 10")
     fun getFirstTenWords(): Flow<List<Word>>

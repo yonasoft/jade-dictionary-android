@@ -24,12 +24,13 @@ internal object AppModule {
     @Singleton
     fun provideWordDatabase(@ApplicationContext context: Context): WordDatabase {
 
-        return Room.databaseBuilder(context, WordDatabase::class.java, "words.db")
+        val db = Room.databaseBuilder(context, WordDatabase::class.java, "words.db")
             .createFromAsset("database/words.db")
             .fallbackToDestructiveMigration()
             .build()
+        Log.i("db123" ,"db initialized ")
+        return db
     }
-
     @Provides
     @Singleton
     fun provideWordRepository(

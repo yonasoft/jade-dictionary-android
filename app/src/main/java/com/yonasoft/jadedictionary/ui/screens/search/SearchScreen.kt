@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.yonasoft.jadedictionary.ui.components.historyrow.HistoryRow
-import com.yonasoft.jadedictionary.ui.components.searchbar.JadeSearchBar
-import com.yonasoft.jadedictionary.ui.components.wordrow.WordRow
+import com.yonasoft.jadedictionary.ui.components.history_row.HistoryRow
+import com.yonasoft.jadedictionary.ui.components.search_bar.JadeSearchBar
+import com.yonasoft.jadedictionary.ui.components.word_row.WordRow
 
 
 @Composable

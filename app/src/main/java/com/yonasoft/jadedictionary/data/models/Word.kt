@@ -11,7 +11,5 @@ data class Word(
     @ColumnInfo(name = "simplified") val simplified: String? = null,
     @ColumnInfo(name = "traditional") val traditional: String? = null,
     @ColumnInfo(name = "pinyin") val pinyin: String? = null,
-    @ColumnInfo(name = "definition") val definition: String? = null,
-    @ColumnInfo(name = "new_traditional") val newTraditional: String,
+    @ColumnInfo(name = "definition") val definition: String? = null
 )
-

@@ -3,11 +3,9 @@ package com.yonasoft.jadedictionary
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -25,7 +23,7 @@ import com.yonasoft.jadedictionary.data.models.NavigationItem
 import com.yonasoft.jadedictionary.ui.components.appbar.JadeAppBar
 import com.yonasoft.jadedictionary.ui.components.drawer.JadeModalDrawerSheet
 import com.yonasoft.jadedictionary.ui.theme.JadeDictionaryTheme
-import com.yonasoft.jadedictionary.util.nav.setupNavigation
+import com.yonasoft.jadedictionary.util.setupNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -56,7 +54,6 @@ fun JadeDictionaryApp() {
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-
         ModalNavigationDrawer(
             drawerContent = {
                 JadeModalDrawerSheet(
