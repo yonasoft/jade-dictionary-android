@@ -2,11 +2,16 @@ package com.yonasoft.jadedictionary.ui.components.word_row
 
 import com.yonasoft.jadedictionary.ui.components.word_detail_dialog.WordDetailDialog
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
@@ -47,44 +52,54 @@ fun WordRow(word: Word, showDialog: (Boolean) -> Unit, isDialogOpen: Boolean) {
 
     val traditionalText =
         if (word.traditional == word.simplified) "" else "(${word.traditional})"
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 2.dp)
-            .height(90.dp)
+            .defaultMinSize(minHeight = 100.dp)
+            .padding(horizontal = 4.dp)
     ) {
-        Row(modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            .align(Alignment.CenterVertically)
-            .clickable { showDialog(true) }) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .defaultMinSize(minHeight = 100.dp)
+                .clickable { showDialog(true) }, verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .weight(.5f),
+                    text = word.simplified + traditionalText,
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .weight(.5f),
+                    text = word.pinyin ?: ("N/A"),
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 modifier = Modifier
-                    .weight(.6f)
-                    .align(Alignment.CenterVertically),
-                text = word.simplified + traditionalText,
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                modifier = Modifier
-                    .weight(.5f)
-                    .align(Alignment.CenterVertically),
-                text = word.pinyin ?: ("N/A"),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-            )
-            Text(
-                modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically),
+                    .fillMaxWidth()
+                    .wrapContentHeight(align = Alignment.CenterVertically),
                 text = word.definition ?: ("N/A"),
                 textAlign = TextAlign.Center,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontStyle = FontStyle.Italic,
                 overflow = TextOverflow.Ellipsis
             )
+
         }
         IconButton(
             onClick = {
