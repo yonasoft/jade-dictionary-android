@@ -36,10 +36,6 @@ class WordRepository(private val db: WordDao) {
         return db.searchWordByPinYin(normalizedQuery)
     }
 
-//    private fun searchExpandedPinYinTones(query: String): Flow<List<Word>> {
-//
-//    }
-
     private fun getTen(): Flow<List<Word>> {
         return db.getFirstTenWords()
     }

@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.yonasoft.jadedictionary.data.constants.Screen
+import com.yonasoft.jadedictionary.ui.screens.account.AccountScreen
 import com.yonasoft.jadedictionary.ui.screens.lists.ListsScreen
 import com.yonasoft.jadedictionary.ui.screens.search.SearchScreen
 
@@ -16,6 +17,9 @@ fun setupNavigation(navController: NavHostController){
         }
         composable(Screen.Lists.route){
             ListsScreen()
+        }
+        composable(Screen.Account.route){
+            AccountScreen(navController = navController)
         }
     }
 }

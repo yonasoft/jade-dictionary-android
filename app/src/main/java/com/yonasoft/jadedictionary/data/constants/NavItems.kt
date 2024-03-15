@@ -25,7 +25,6 @@ fun NavItems(): List<NavigationItem> {
             destination="search",
             selectedIcon = Icons.Filled.Search,
             unselectedIcon = Icons.Outlined.Search,
-            badgeCount = 45
         ),
         NavigationItem(
             title = "Lists",
@@ -41,7 +40,7 @@ fun NavItems(): List<NavigationItem> {
         ),
         NavigationItem(
             title = "Account",
-            destination = "support",
+            destination = "account",
             selectedIcon = Icons.Filled.AccountCircle,
             unselectedIcon = Icons.Outlined.AccountCircle,
         ),
