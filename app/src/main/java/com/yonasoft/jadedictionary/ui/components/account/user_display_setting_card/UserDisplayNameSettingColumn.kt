@@ -34,7 +34,8 @@ fun UserDisplayNameSettingColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Display Name", fontWeight = FontWeight.Bold,
+            text = "Display Name",
+            fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
         )
         if (isEditDisplayName) {
@@ -47,6 +48,7 @@ fun UserDisplayNameSettingColumn(
                 onValueChange = {
                     onDisplayNameFieldChange(it)
                 },
+                placeholder = { Text(text = "New Display Name") },
                 trailingIcon =
                 {
                     IconButton(

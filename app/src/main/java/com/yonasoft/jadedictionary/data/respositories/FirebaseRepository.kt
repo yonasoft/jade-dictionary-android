@@ -1,5 +1,6 @@
 package com.yonasoft.jadedictionary.data.respositories
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
@@ -7,7 +8,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.yonasoft.jadedictionary.ui.screens.account.user_profile.showToast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class FirebaseRepository(
     private val firebaseAuth: FirebaseAuth,
@@ -25,7 +29,7 @@ class FirebaseRepository(
         return authUI
     }
 
-    fun getFirestore(): FirebaseFirestore {
+    private fun getFirestore(): FirebaseFirestore {
         return firestore
     }
 
@@ -50,10 +54,10 @@ class FirebaseRepository(
         newDisplayName: String?,
         newPhoto: Uri?
     ) {
-        var displayName = if (newDisplayName.isNullOrEmpty()) user!!.displayName else newDisplayName
+        val displayName = if (newDisplayName.isNullOrEmpty()) user!!.displayName else newDisplayName
         var photoUrl = user!!.photoUrl.toString()
         if (newPhoto != null) {
-            if (photoUrl.isNotBlank()) {
+            if (!user.photoUrl.toString().isNullOrEmpty()) {
                 deleteOldUserProfile()
             }
             photoUrl = uploadNewUserProfile(newPhoto)!!
@@ -63,7 +67,7 @@ class FirebaseRepository(
             newPhotoUrl = photoUrl,
         )
         updateDisplayInfoInFirestore(
-            newDisplayName = displayName!!,
+            newDisplayName = displayName,
             newPhotoUrl = photoUrl,
         )
     }
@@ -140,6 +144,39 @@ class FirebaseRepository(
             Log.e("UploadProfilePicture", "Upload failed", e)
             null
         }
+    }
+
+    fun addUserToFirestore() {
+        user?.let { currentUser ->
+            Log.d("FirestoreAdd", "Attempting to add/update user in Firestore")
+            val userMap = mapOf(
+                "displayName" to (currentUser.displayName ?: ""),
+                "email" to (currentUser.email ?: ""),
+                "photoFileName" to "",
+                "photoURL" to (currentUser.photoUrl?.toString() ?: ""),
+                "uid" to currentUser.uid
+            )
+
+            firestore.collection("users").document(currentUser.uid)
+                .set(userMap)
+                .addOnSuccessListener {
+                    Log.d("FirestoreAdd", "User successfully added/updated in Firestore")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FirestoreAdd", "Error adding/updating user in Firestore", e)
+                }
+        } ?: run {
+            Log.e("FirestoreAdd", "No authenticated user found. Can't add/update Firestore")
+        }
+    }
+
+    fun signOut(context: Context, onComplete: () -> Unit) {
+        AuthUI.getInstance()
+            .signOut(context)
+            .addOnCompleteListener {
+                onComplete()
+            }
+        return getAuth().signOut()
     }
 }
 

@@ -20,27 +20,19 @@ import com.yonasoft.jadedictionary.R
 
 @Composable
 fun UserDisplayImageSetting(
-    currentProfileImageLink: String,
+    currentImageLink: String,
     selectedImage: Uri?,
     onInitiateUpload: () -> Unit,
 ) {
-    if (selectedImage != null || currentProfileImageLink.isNotEmpty()) {
-        Card(
+    Card(
+        modifier = Modifier.size(200.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        AsyncImage(
             modifier = Modifier.size(200.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            AsyncImage(
-                modifier = Modifier.size(200.dp),
-                contentScale = ContentScale.Crop,
-                model = selectedImage ?: currentProfileImageLink,
-                contentDescription = "User Profile Image"
-            )
-        }
-    } else {
-        Image(
-            modifier = Modifier.size(200.dp),
-            painter = painterResource(id = R.drawable.baseline_account_box_200),
-            contentDescription = "Default Profile Image"
+            contentScale = ContentScale.Crop,
+            model = selectedImage ?: currentImageLink,
+            contentDescription = "User Profile Image"
         )
     }
     TextButton(

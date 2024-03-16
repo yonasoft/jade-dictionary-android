@@ -22,7 +22,7 @@ fun UserDisplaySettingCard(
     onDisplayNameFieldChange: (text: String) -> Unit,
     onCancelEdit: () -> Unit,
     onEdit: () -> Unit,
-    currentProfileImageLink: String? = "",
+    currentImageLink: String = "",
     selectedImage: Uri?,
     onInitiateUpload: () -> Unit,
     onSave: () -> Unit,
@@ -48,7 +48,7 @@ fun UserDisplaySettingCard(
             )
             Spacer(modifier = Modifier.height(6.dp))
             UserDisplayImageSetting(
-                currentProfileImageLink = currentProfileImageLink ?: "",
+                currentImageLink = currentImageLink ,
                 selectedImage = selectedImage,
                 onInitiateUpload = {
                     onInitiateUpload()

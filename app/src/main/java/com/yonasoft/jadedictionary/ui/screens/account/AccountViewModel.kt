@@ -10,9 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
+import com.yonasoft.jadedictionary.ui.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,12 +23,16 @@ class AccountViewModel @Inject constructor(
     val auth = mutableStateOf(firebaseRepository.getAuth())
     val authUI = mutableStateOf(firebaseRepository.getAuthUI())
 
+    val isEditDisplayName = mutableStateOf(false)
     val currentUser = mutableStateOf(firebaseRepository.getAuth().currentUser)
     val currDisplayName = mutableStateOf(currentUser.value?.displayName ?: "")
     val displayNameField = mutableStateOf(currentUser.value?.displayName ?: "")
     val currentImage = mutableStateOf(currentUser.value?.photoUrl?.toString() ?: "")
-    val isEditDisplayName = mutableStateOf(false)
     val selectedImage = mutableStateOf<Uri?>(null)
+
+    val email = mutableStateOf("")
+    val confirmEmail = mutableStateOf("")
+    val emailError = mutableStateOf<String?>(null)
 
 
     val providers = arrayListOf(
@@ -43,26 +47,6 @@ class AccountViewModel @Inject constructor(
             currentUser.value = auth.currentUser
             currDisplayName.value = auth.currentUser?.displayName ?: ""
             currentImage.value = auth.currentUser?.photoUrl?.toString() ?: ""
-        }
-    }
-
-    private fun listenToUserProfileUpdates(uid: String) {
-        val docRef = firebaseRepository.getFirestore().collection("users").document(uid)
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w("AccountViewModel", "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                // Assuming the document contains a 'photoURL' field
-                val newPhotoUrl = snapshot.getString("photoURL")
-                newPhotoUrl?.let {
-                    currentImage.value = Uri.parse(it).toString()
-                }
-            } else {
-                Log.d("AccountViewModel", "Current data: null")
-            }
         }
     }
 
@@ -86,26 +70,31 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse
-        Log.d("signin", "got here...${response?.error}")
-        Log.d("signin", "got here...${result.resultCode}")
-        if (result.resultCode == RESULT_OK) {
-            currentUser.value = auth.value.currentUser
-            Log.d("signin", currentUser.value!!.uid)
 
-        } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
+    fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        viewModelScope.launch {
+            val response = result.idpResponse
+            Log.d("signin", "got here...${response?.error}")
+            Log.d("signin", "got here...${result.resultCode}")
+            if (result.resultCode == RESULT_OK) {
+                currentUser.value = auth.value.currentUser
+                firebaseRepository.addUserToFirestore()
+                Log.d("signin", currentUser.value!!.uid)
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
         }
     }
 
-    fun signOut(activity: Context) {
+    fun signOut(context: Context) {
         viewModelScope.launch {
             try {
-                val success = authUI.value.signOut(activity).await()
+                val success = firebaseRepository.signOut(context){
+                    showToast(context, "Signed out!")
+                }
             } catch (e: Exception) {
                 Log.d("signin", "sign out error: ${e.message.toString()}")
             }
