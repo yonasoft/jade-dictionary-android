@@ -1,5 +1,10 @@
 package com.yonasoft.jadedictionary.ui.screens.account.user_profile
 
+import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
@@ -26,8 +31,16 @@ fun UserProfile(
     val context = LocalContext.current
     val isEditDisplayName = viewModel.isEditDisplayName
     val displayNameField = viewModel.displayNameField
-    val currentDisplayName = viewModel.currentUser.value!!.displayName ?: ""
+    val currDisplayName = viewModel.currDisplayName
+    val currProfileImage = viewModel.currentUser.value!!.photoUrl.toString()
+    val selectedImage = viewModel.selectedImage
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImage.value = uri!!
+        }
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -48,7 +61,7 @@ fun UserProfile(
             Spacer(modifier = Modifier.height(12.dp))
             UserDisplaySettingCard(
                 isEditDisplayName = isEditDisplayName.value,
-                currentDisplayName = currentDisplayName,
+                currentDisplayName = currDisplayName.value ?: "",
                 displayNameField = displayNameField.value,
                 onDisplayNameFieldChange = {
                     displayNameField.value = it
@@ -60,8 +73,29 @@ fun UserProfile(
                 onEdit = {
                     isEditDisplayName.value = true
                 },
+                currentProfileImageLink = currProfileImage,
+                selectedImage = viewModel.selectedImage.value,
+                onInitiateUpload = {
+                    launcher.launch(
+                        PickVisualMediaRequest()
+                    )
+                },
+                onSave = {
+                    viewModel.updateDisplayInfo {
+                        val message =
+                            if (it) "Display name already exists!" else "Display info successfully changed!"
+                        currDisplayName.value = displayNameField.value
+                        showToast(context = context, message = message)
+                    }
+                    isEditDisplayName.value = false
+                },
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
+}
+
+fun showToast(context: Context, message: String) {
+    val toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
+    toast.show()
 }

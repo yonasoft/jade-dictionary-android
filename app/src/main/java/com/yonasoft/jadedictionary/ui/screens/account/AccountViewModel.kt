@@ -2,6 +2,7 @@ package com.yonasoft.jadedictionary.ui.screens.account
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -17,16 +18,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    firebaseRepository: FirebaseRepository,
+    private val firebaseRepository: FirebaseRepository,
 ) :
     ViewModel() {
     val auth = mutableStateOf(firebaseRepository.getAuth())
     val authUI = mutableStateOf(firebaseRepository.getAuthUI())
-    val currentUser = mutableStateOf<FirebaseUser?>(null)
+    val currentUser = mutableStateOf(firebaseRepository.getAuth().currentUser)
 
-    val isEditDisplayName  = mutableStateOf(false)
+    val isEditDisplayName = mutableStateOf(false)
+    val currDisplayName = mutableStateOf(currentUser.value!!.displayName)
     val displayNameField = mutableStateOf("")
-    val profileImage = mutableStateOf("")
+    val selectedImage = mutableStateOf<Uri?>(null)
 
 
     val providers = arrayListOf(
@@ -39,6 +41,28 @@ class AccountViewModel @Inject constructor(
         auth.value.addAuthStateListener {
             auth.value = it
             currentUser.value = it.currentUser
+        }
+
+    }
+
+    fun updateDisplayInfo(
+        newDisplayName: String? = displayNameField.value,
+        newPhoto: Uri? = selectedImage.value,
+        onCheckComplete: (Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            firebaseRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
+                viewModelScope.launch {
+                    onCheckComplete(exists)
+                    if (!exists) {
+                        firebaseRepository.updateUserDisplayInfo(
+                            newDisplayName = newDisplayName,
+                            newPhoto = newPhoto,
+                        )
+
+                    }
+                }
+            }
         }
     }
 
