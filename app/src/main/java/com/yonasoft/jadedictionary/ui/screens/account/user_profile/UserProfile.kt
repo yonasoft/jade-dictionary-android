@@ -32,7 +32,7 @@ fun UserProfile(
     val isEditDisplayName = viewModel.isEditDisplayName
     val displayNameField = viewModel.displayNameField
     val currDisplayName = viewModel.currDisplayName
-    val currProfileImage = viewModel.currentUser.value!!.photoUrl.toString()
+    val currProfileImage = viewModel.currentImage
     val selectedImage = viewModel.selectedImage
 
     val launcher = rememberLauncherForActivityResult(
@@ -51,6 +51,7 @@ fun UserProfile(
                     ), orientation = Orientation.Vertical
                 ), horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
             Button(
                 modifier = Modifier,
                 onClick = {
@@ -62,7 +63,7 @@ fun UserProfile(
             UserDisplaySettingCard(
                 isEditDisplayName = isEditDisplayName.value,
                 currentDisplayName = currDisplayName.value ?: "",
-                displayNameField = displayNameField.value,
+                displayNameField = displayNameField.value.toString(),
                 onDisplayNameFieldChange = {
                     displayNameField.value = it
                 },
@@ -73,7 +74,7 @@ fun UserProfile(
                 onEdit = {
                     isEditDisplayName.value = true
                 },
-                currentProfileImageLink = currProfileImage,
+                currentProfileImageLink = currProfileImage.value.toString(),
                 selectedImage = viewModel.selectedImage.value,
                 onInitiateUpload = {
                     launcher.launch(

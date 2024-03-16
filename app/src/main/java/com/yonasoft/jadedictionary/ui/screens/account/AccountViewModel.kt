@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.firebase.auth.FirebaseUser
 import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -23,11 +22,12 @@ class AccountViewModel @Inject constructor(
     ViewModel() {
     val auth = mutableStateOf(firebaseRepository.getAuth())
     val authUI = mutableStateOf(firebaseRepository.getAuthUI())
-    val currentUser = mutableStateOf(firebaseRepository.getAuth().currentUser)
 
+    val currentUser = mutableStateOf(firebaseRepository.getAuth().currentUser)
+    val currDisplayName = mutableStateOf(currentUser.value?.displayName ?: "")
+    val displayNameField = mutableStateOf(currentUser.value?.displayName ?: "")
+    val currentImage = mutableStateOf(currentUser.value?.photoUrl?.toString() ?: "")
     val isEditDisplayName = mutableStateOf(false)
-    val currDisplayName = mutableStateOf(currentUser.value!!.displayName)
-    val displayNameField = mutableStateOf("")
     val selectedImage = mutableStateOf<Uri?>(null)
 
 
@@ -38,11 +38,32 @@ class AccountViewModel @Inject constructor(
     )
 
     init {
-        auth.value.addAuthStateListener {
-            auth.value = it
-            currentUser.value = it.currentUser
+        firebaseRepository.getAuth().addAuthStateListener { auth ->
+            this.auth.value = auth
+            currentUser.value = auth.currentUser
+            currDisplayName.value = auth.currentUser?.displayName ?: ""
+            currentImage.value = auth.currentUser?.photoUrl?.toString() ?: ""
         }
+    }
 
+    private fun listenToUserProfileUpdates(uid: String) {
+        val docRef = firebaseRepository.getFirestore().collection("users").document(uid)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("AccountViewModel", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // Assuming the document contains a 'photoURL' field
+                val newPhotoUrl = snapshot.getString("photoURL")
+                newPhotoUrl?.let {
+                    currentImage.value = Uri.parse(it).toString()
+                }
+            } else {
+                Log.d("AccountViewModel", "Current data: null")
+            }
+        }
     }
 
     fun updateDisplayInfo(
@@ -59,7 +80,6 @@ class AccountViewModel @Inject constructor(
                             newDisplayName = newDisplayName,
                             newPhoto = newPhoto,
                         )
-
                     }
                 }
             }
