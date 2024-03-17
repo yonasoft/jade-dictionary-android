@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.yonasoft.jadedictionary.ui.components.account.password_Setting_card.PasswordSettingCard
 import com.yonasoft.jadedictionary.ui.components.account.user_display_setting_card.UserDisplaySettingCard
 import com.yonasoft.jadedictionary.ui.screens.account.AccountViewModel
 
@@ -33,10 +34,10 @@ fun UserProfile(
     val currentImage = viewModel.currentImage
     val selectedImage = viewModel.selectedImage
 
-    val currentEmail = viewModel.currentUser.value!!.email
-    val email = viewModel.email
-    val confirmEmail = viewModel.confirmEmail
-    val emailError = viewModel.emailError
+    val password = viewModel.password
+    val confirmPassword = viewModel.confirmPassword
+    val passwordError = viewModel.passwordError
+    val passwordVisible = viewModel.passwordVisible
 
     rememberScrollState()
 
@@ -87,7 +88,7 @@ fun UserProfile(
                 )
             },
             onSave = {
-                viewModel.updateDisplayInfo {
+                viewModel.updateDisplayInfo(context = context) {
                     val message =
                         if (it) "Display name already exists!" else "Display info successfully changed!"
                     currDisplayName.value = displayNameField.value
@@ -99,12 +100,30 @@ fun UserProfile(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        PasswordSettingCard(
+            password = password.value,
+            confirmPassword = confirmPassword.value,
+            onPasswordChange = {
+                password.value = it
+            },
+            onConfirmPasswordChange = {
+                confirmPassword.value = it
+            },
+            passwordError = passwordError.value,
+            passwordVisible = passwordVisible.value,
+            togglePasswordVisible = {
+                passwordVisible.value = !passwordVisible.value
+            }
+        ) {
+            viewModel.savePassword(context)
+        }
 
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
 
-fun showToast(context: Context, message: String) {
-    val toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+fun showToast(context: Context, message: String, duration:Int = Toast.LENGTH_SHORT) {
+    val toast = Toast.makeText(context, message, duration)
     toast.show()
 }

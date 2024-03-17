@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.ui.components.word_detail_dialog
+package com.yonasoft.jadedictionary.ui.components.dialogs.word_detail_dialog
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi

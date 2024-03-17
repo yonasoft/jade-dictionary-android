@@ -10,19 +10,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.yonasoft.jadedictionary.R
+import com.yonasoft.jadedictionary.ui.components.dialogs.forgot_password_dialog.ForgotPasswordDialog
 import com.yonasoft.jadedictionary.ui.screens.account.AccountViewModel
-import kotlin.math.log
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     viewModel: AccountViewModel,
 ) {
+
+    val context = LocalContext.current
     val providers = viewModel.providers
 
     val signInLauncher = rememberLauncherForActivityResult(
@@ -61,5 +64,13 @@ fun LoginScreen(
                 textAlign = TextAlign.Center
             )
         }
+        // Forgot Password Button should be outside of the Log In Button
+        Button(onClick = {
+            viewModel.showForgotPasswordDialog.value = true
+        }) {
+            Text(text = "Forgot Password?")
+        }
     }
+
+    ForgotPasswordDialog(viewModel, viewModel.showForgotPasswordDialog, context)
 }

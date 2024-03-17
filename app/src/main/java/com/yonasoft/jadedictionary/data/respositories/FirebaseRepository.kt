@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,7 +34,8 @@ class FirebaseRepository(
     }
 
     fun checkDisplayNameExists(displayName: String, callback: (exists: Boolean) -> Unit) {
-        if (displayName == user!!.displayName) callback(false)
+        Log.e("change_display", "$displayName ${user!!.displayName}")
+        if (displayName == user.displayName) callback(false)
         firestore.collection("users").whereEqualTo("displayName", displayName)
             .limit(1).get()
             .addOnSuccessListener { documents ->
@@ -51,15 +53,16 @@ class FirebaseRepository(
 
     suspend fun updateUserDisplayInfo(
         newDisplayName: String?,
-        newPhoto: Uri?
+        newPhoto: Uri?,
+        onFail: (message: String) -> Unit,
     ) {
         val displayName = if (newDisplayName.isNullOrEmpty()) user!!.displayName else newDisplayName
         var photoUrl = user!!.photoUrl.toString()
         if (newPhoto != null) {
-            if (!user.photoUrl.toString().isNullOrEmpty()) {
+            if (user.photoUrl.toString().isNotEmpty()) {
                 deleteOldUserImage()
             }
-            photoUrl = uploadNewUserImage(newPhoto)!!
+            photoUrl = uploadNewUserImage(newPhoto, onFail)!!
         }
         updateDisplayInfoInAuth(
             newDisplayName = displayName!!,
@@ -116,20 +119,27 @@ class FirebaseRepository(
             }
     }
 
-
     private fun deleteOldUserImage() {
-        val ref = firebaseStorage.getReferenceFromUrl(user!!.photoUrl.toString())
+        val photoUrl = user?.photoUrl?.toString()
+        if (photoUrl.isNullOrEmpty()) {
+            Log.d("DeleteProfilePicture", "No photo URL to delete.")
+            return
+        }
 
-        ref.delete().addOnSuccessListener {
-            // File deleted successfully
-            Log.d("DeleteProfilePicture", "File deleted successfully")
-        }.addOnFailureListener { _ ->
-            // Uh-oh, an error occurred!
-            Log.d("DeleteProfilePicture", "Failed to delete file")
+        try {
+            val ref = firebaseStorage.getReferenceFromUrl(photoUrl)
+            ref.delete().addOnSuccessListener {
+                Log.d("DeleteProfilePicture", "File deleted successfully.")
+            }.addOnFailureListener { exception ->
+                Log.d("DeleteProfilePicture", "Failed to delete file.", exception)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.e("DeleteProfilePicture", "The storage Uri could not be parsed: $photoUrl", e)
         }
     }
 
-    private suspend fun uploadNewUserImage(newPhoto: Uri): String? {
+
+    suspend fun uploadNewUserImage(newPhoto: Uri, onFail: (message: String) -> Unit): String? {
         val storageReference = FirebaseStorage.getInstance().reference
         val userUid = user?.uid ?: return null // Early return if user is null
         val filePath = "$userUid/profile_pictures/${newPhoto.lastPathSegment}"
@@ -142,9 +152,12 @@ class FirebaseRepository(
             downloadUrl.toString()
         } catch (e: Exception) {
             Log.e("UploadProfilePicture", "Upload failed", e)
+            // Showing a toast directly from the repository is not a best practice. Consider communicating back to UI layer.
+            onFail("Unsupported file format! ${newPhoto.lastPathSegment}")
             null
         }
     }
+
 
     fun addUserToFirestore(currentUser: FirebaseUser = getAuth().currentUser!!) {
         try {
@@ -175,6 +188,35 @@ class FirebaseRepository(
             Log.e("firestore_add", "Exception in addUserToFirestore", e)
         }
     }
+
+    fun updatePassword(newPassword: String, onComplete: (Boolean, String?) -> Unit) {
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onComplete(true, null)
+            } else {
+                if (task.exception is FirebaseAuthRecentLoginRequiredException) {
+                    // This exception indicates the user must re-authenticate.
+                    onComplete(false, "Please re-login to update your password.")
+                } else {
+                    // Other exceptions
+                    onComplete(false, task.exception?.message ?: "An error occurred")
+                }
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String, onComplete: (Boolean, String?) -> Unit) {
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onComplete(true, null)
+                } else {
+                    onComplete(false, task.exception?.message ?: "An unknown error occurred")
+                }
+            }
+    }
+
 
     fun signOut(context: Context, onComplete: () -> Unit) {
         AuthUI.getInstance()

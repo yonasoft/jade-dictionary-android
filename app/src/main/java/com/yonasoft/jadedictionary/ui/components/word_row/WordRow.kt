@@ -1,6 +1,6 @@
 package com.yonasoft.jadedictionary.ui.components.word_row
 
-import com.yonasoft.jadedictionary.ui.components.word_detail_dialog.WordDetailDialog
+import com.yonasoft.jadedictionary.ui.components.dialogs.word_detail_dialog.WordDetailDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
