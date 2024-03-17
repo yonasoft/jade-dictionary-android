@@ -5,13 +5,12 @@ import android.net.Uri
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
-import com.yonasoft.jadedictionary.ui.screens.account.user_profile.showToast
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class FirebaseRepository(
     private val firebaseAuth: FirebaseAuth,
@@ -58,9 +57,9 @@ class FirebaseRepository(
         var photoUrl = user!!.photoUrl.toString()
         if (newPhoto != null) {
             if (!user.photoUrl.toString().isNullOrEmpty()) {
-                deleteOldUserProfile()
+                deleteOldUserImage()
             }
-            photoUrl = uploadNewUserProfile(newPhoto)!!
+            photoUrl = uploadNewUserImage(newPhoto)!!
         }
         updateDisplayInfoInAuth(
             newDisplayName = displayName!!,
@@ -117,7 +116,8 @@ class FirebaseRepository(
             }
     }
 
-    private fun deleteOldUserProfile() {
+
+    private fun deleteOldUserImage() {
         val ref = firebaseStorage.getReferenceFromUrl(user!!.photoUrl.toString())
 
         ref.delete().addOnSuccessListener {
@@ -129,7 +129,7 @@ class FirebaseRepository(
         }
     }
 
-    private suspend fun uploadNewUserProfile(newPhoto: Uri): String? {
+    private suspend fun uploadNewUserImage(newPhoto: Uri): String? {
         val storageReference = FirebaseStorage.getInstance().reference
         val userUid = user?.uid ?: return null // Early return if user is null
         val filePath = "$userUid/profile_pictures/${newPhoto.lastPathSegment}"
@@ -146,27 +146,33 @@ class FirebaseRepository(
         }
     }
 
-    fun addUserToFirestore() {
-        user?.let { currentUser ->
-            Log.d("FirestoreAdd", "Attempting to add/update user in Firestore")
-            val userMap = mapOf(
-                "displayName" to (currentUser.displayName ?: ""),
-                "email" to (currentUser.email ?: ""),
-                "photoFileName" to "",
-                "photoURL" to (currentUser.photoUrl?.toString() ?: ""),
-                "uid" to currentUser.uid
+    fun addUserToFirestore(currentUser: FirebaseUser = getAuth().currentUser!!) {
+        try {
+            Log.d(
+                "sign_in",
+                "Attempting to add/update user in Firestore for UID: ${currentUser.uid}"
             )
-
-            firestore.collection("users").document(currentUser.uid)
-                .set(userMap)
+            val uid = currentUser.uid
+            val userMap = hashMapOf(
+                "displayName" to (currentUser.displayName ?: "N/A"),
+                "email" to (currentUser.email ?: "N/A"),
+                "photoFileName" to "",
+                "photoURL" to (currentUser.photoUrl?.toString() ?: "N/A"),
+                "uid" to uid
+            )
+            firestore.collection("users").document(uid).set(userMap, SetOptions.merge())
                 .addOnSuccessListener {
-                    Log.d("FirestoreAdd", "User successfully added/updated in Firestore")
+                    Log.d("firestore_add", "Successfully written user document for UID: $uid")
                 }
                 .addOnFailureListener { e ->
-                    Log.e("FirestoreAdd", "Error adding/updating user in Firestore", e)
+                    Log.w(
+                        "firestore_add",
+                        "Error writing document for UID: $uid. Error: ${e.message}",
+                        e
+                    )
                 }
-        } ?: run {
-            Log.e("FirestoreAdd", "No authenticated user found. Can't add/update Firestore")
+        } catch (e: Exception) {
+            Log.e("firestore_add", "Exception in addUserToFirestore", e)
         }
     }
 

@@ -7,6 +7,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
@@ -81,7 +82,7 @@ internal object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore {
-        return FirebaseFirestore.getInstance()
+        return Firebase.firestore
     }
 
     @Provides

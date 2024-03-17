@@ -9,11 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
 import com.yonasoft.jadedictionary.ui.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
@@ -43,12 +46,20 @@ class AccountViewModel @Inject constructor(
 
     init {
         firebaseRepository.getAuth().addAuthStateListener { auth ->
+            val user = auth.currentUser
             this.auth.value = auth
             currentUser.value = auth.currentUser
+            Log.d("AuthStateListener", "Auth state changed. User: ${auth.currentUser?.uid}")
             currDisplayName.value = auth.currentUser?.displayName ?: ""
             currentImage.value = auth.currentUser?.photoUrl?.toString() ?: ""
+            if ( user != null) {
+                Log.d("AuthStateListener", "User logged in: ${user.uid}")
+                // This is a safer place to call your addUserToFirestore method
+                firebaseRepository.addUserToFirestore(user)
+            }
         }
     }
+
 
     fun updateDisplayInfo(
         newDisplayName: String? = displayNameField.value,
@@ -70,29 +81,25 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        viewModelScope.launch {
-            val response = result.idpResponse
-            Log.d("signin", "got here...${response?.error}")
-            Log.d("signin", "got here...${result.resultCode}")
-            if (result.resultCode == RESULT_OK) {
-                currentUser.value = auth.value.currentUser
-                firebaseRepository.addUserToFirestore()
-                Log.d("signin", currentUser.value!!.uid)
+        if (result.resultCode == RESULT_OK) {
+            // Fetch the current user again to ensure it's not null
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                Log.d("sign_in", "Attempting to add user to Firestore.")
+                firebaseRepository.addUserToFirestore(user)
             } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
+                Log.d("sign_in", "User is null after sign in.")
             }
+        } else {
+            Log.d("sign_in", "Sign in failed or cancelled.")
         }
     }
 
     fun signOut(context: Context) {
         viewModelScope.launch {
             try {
-                val success = firebaseRepository.signOut(context){
+                val success = firebaseRepository.signOut(context) {
                     showToast(context, "Signed out!")
                 }
             } catch (e: Exception) {
