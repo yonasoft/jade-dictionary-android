@@ -95,12 +95,14 @@ fun UserProfile(
             },
             onSave = {
                 viewModel.updateDisplayInfo(context = context) {
-                    val message =
-                        if (displayNameField != currDisplayName && it) "Display name already exists!" else "Display info successfully changed!"
-                    currDisplayName.value = displayNameField.value
-                    showToast(context = context, message = message)
+                    if (displayNameField.value.isNotEmpty() && displayNameField.value != currDisplayName.value) {
+                        val message =
+                            if (it) "Display name already exists!" else "Display info successfully changed!"
+                        currDisplayName.value = displayNameField.value
+                        showToast(context = context, message = message)
+                    }
+                    isEditDisplayName.value = false
                 }
-                isEditDisplayName.value = false
             },
         )
 
