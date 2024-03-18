@@ -63,6 +63,11 @@ class FirebaseRepository(
                 deleteOldUserImage()
             }
             photoUrl = uploadNewUserImage(newPhoto, onFail)!!
+            firestore.collection("users").document(user.uid).update(mapOf(
+                "photoURL" to photoUrl,
+                "photoFileName" to newPhoto.lastPathSegment // Or any filename logic you're using
+            )).await()
+
         }
         updateDisplayInfoInAuth(
             newDisplayName = displayName!!,
@@ -153,7 +158,6 @@ class FirebaseRepository(
         } catch (e: Exception) {
             Log.e("UploadProfilePicture", "Upload failed", e)
             // Showing a toast directly from the repository is not a best practice. Consider communicating back to UI layer.
-            onFail("Unsupported file format! ${newPhoto.lastPathSegment}")
             null
         }
     }
@@ -217,6 +221,20 @@ class FirebaseRepository(
             }
     }
 
+    suspend fun deleteUserAccount(): Result<Boolean> {
+        val currentUserUid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("No authenticated user found."))
+
+        return try {
+            deleteOldUserImage()
+            firestore.collection("users").document(currentUserUid).delete().await()
+            firebaseAuth.currentUser?.delete()?.await()
+
+            Result.success(true)
+        } catch (e: Exception) {
+            Log.e("FirebaseRepository", "Error deleting user account: $e")
+            Result.failure(e)
+        }
+    }
 
     fun signOut(context: Context, onComplete: () -> Unit) {
         AuthUI.getInstance()

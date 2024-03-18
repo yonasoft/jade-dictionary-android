@@ -18,8 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.yonasoft.jadedictionary.presentation.components.account.account_deletion_card.AccountDeletionCard
 import com.yonasoft.jadedictionary.presentation.components.account.password_Setting_card.PasswordSettingCard
 import com.yonasoft.jadedictionary.presentation.components.account.user_display_setting_card.UserDisplaySettingCard
+import com.yonasoft.jadedictionary.presentation.components.dialogs.account_deletion_confirm_dialog.AccountDeletionConfirmDialog
 import com.yonasoft.jadedictionary.presentation.screens.account.AccountViewModel
 
 @Composable
@@ -38,6 +40,10 @@ fun UserProfile(
     val confirmPassword = viewModel.confirmPassword
     val passwordError = viewModel.passwordError
     val passwordVisible = viewModel.passwordVisible
+
+    val showDeletionConfirmation = viewModel.showDeletionConfirmation
+    val confirmationText = viewModel.confirmationText
+    val showDeleteConfirmationError = viewModel.showDeleteConfirmationError
 
     rememberScrollState()
 
@@ -90,7 +96,7 @@ fun UserProfile(
             onSave = {
                 viewModel.updateDisplayInfo(context = context) {
                     val message =
-                        if (it) "Display name already exists!" else "Display info successfully changed!"
+                        if (displayNameField != currDisplayName && it) "Display name already exists!" else "Display info successfully changed!"
                     currDisplayName.value = displayNameField.value
                     showToast(context = context, message = message)
                 }
@@ -119,11 +125,49 @@ fun UserProfile(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        AccountDeletionCard {
+            showDeletionConfirmation.value = true
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
     }
+
+    AccountDeletionConfirmDialog(
+        showDialog = showDeletionConfirmation,
+        confirmationText = confirmationText,
+        showError = showDeleteConfirmationError,
+        onDelete = { _, _ -> // Note: Adjusted to match (Boolean, String?) -> Unit
+            if (confirmationText.value == "Delete Account") {
+                viewModel.initiateAccountDeletion(context) { deletionSuccess, errorMessage ->
+                    if (deletionSuccess) {
+                        showToast(context, "Account successfully deleted.")
+                        viewModel.signOut(context)
+                        // Optionally reset states or navigate away since the account is deleted.
+                    } else {
+                        showToast(
+                            context,
+                            errorMessage ?: "Failed to delete account. Please try again."
+                        )
+                    }
+                    // Assuming you want to close the dialog regardless of the outcome.
+                    showDeletionConfirmation.value = false
+                }
+            } else {
+                showToast(
+                    context,
+                    "Confirmation text does not match. Please type exactly \"Delete Account\" to confirm."
+                )
+                // Do not close the dialog automatically in case of text mismatch; allow the user to correct it.
+            }
+        }
+    )
+
+
 }
 
 
-fun showToast(context: Context, message: String, duration:Int = Toast.LENGTH_SHORT) {
+fun showToast(context: Context, message: String, duration: Int = Toast.LENGTH_SHORT) {
     val toast = Toast.makeText(context, message, duration)
     toast.show()
 }

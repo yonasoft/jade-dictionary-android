@@ -4,12 +4,14 @@ import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
 import com.yonasoft.jadedictionary.presentation.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +38,10 @@ class AccountViewModel @Inject constructor(
     val confirmPassword = mutableStateOf("")
     val passwordError = mutableStateOf<String?>(null)
     val passwordVisible = mutableStateOf(false)
+
+    val showDeletionConfirmation = mutableStateOf(false)
+    val confirmationText = mutableStateOf("")
+    val showDeleteConfirmationError = mutableStateOf(false)
 
     val providers = arrayListOf(
         AuthUI.IdpConfig.EmailBuilder().build(),
@@ -125,6 +131,27 @@ class AccountViewModel @Inject constructor(
             }
         }
     }
+
+    fun initiateAccountDeletion(context: Context, onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            val result = firebaseRepository.deleteUserAccount()
+
+            if (result.isSuccess) {
+                showToast(context, "Account successfully deleted.", Toast.LENGTH_LONG)
+                onComplete(true, null)
+            } else {
+                val exception = result.exceptionOrNull()
+                if (exception is FirebaseAuthRecentLoginRequiredException) {
+                    showToast(context, "Please re-login to delete your account.", Toast.LENGTH_LONG)
+                    onComplete(false, "Please re-login to delete your account.")
+                } else {
+                    showToast(context, exception?.message ?: "An error occurred during account deletion.", Toast.LENGTH_LONG)
+                    onComplete(false, exception?.message)
+                }
+            }
+        }
+    }
+
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
