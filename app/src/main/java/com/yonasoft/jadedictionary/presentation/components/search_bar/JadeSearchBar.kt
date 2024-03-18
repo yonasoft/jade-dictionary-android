@@ -11,28 +11,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JadeSearchBar(
-    query: String,
-    active: Boolean,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    query: MutableState<String>,
+    active: MutableState<Boolean>,
     onSearch: (query: String) -> Unit,
     changeQuery: (query: String) -> Unit,
     changeActive: (iSActive: Boolean) -> Unit,
     content: @Composable() (ColumnScope.() -> Unit),
 ) {
     SearchBar(
-        modifier = Modifier.fillMaxWidth(),
-        query = query,
+        modifier = modifier,
+        query = query.value,
         onQueryChange = {
             changeQuery(it)
         },
         onSearch = {
             onSearch(it)
         },
-        active = active,
+        active = active.value,
         onActiveChange = {
             changeActive(it)
         },
@@ -45,7 +47,7 @@ fun JadeSearchBar(
         trailingIcon = {
             Icon(
                 modifier = Modifier.clickable {
-                    if (query.isEmpty()) {
+                    if (query.value.isEmpty()) {
                         changeActive(false)
                     }
                     changeQuery("")

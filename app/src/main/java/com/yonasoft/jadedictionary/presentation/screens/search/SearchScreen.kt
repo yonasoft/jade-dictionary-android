@@ -38,7 +38,7 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
             .fillMaxSize()
             .padding(horizontal = 2.dp)
     ) {
-        JadeSearchBar(query = query.value, active = active.value, onSearch = {
+        JadeSearchBar(query = query, active = active, onSearch = {
             viewModel.onSearch(it)
             viewModel.addToHistory(it)
             query.value = ""
@@ -67,7 +67,7 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 searchResults.value.size
-            ) { it ->
+            ) {
                 val word = searchResults.value[it]
                 WordRow(
                     word = word,
