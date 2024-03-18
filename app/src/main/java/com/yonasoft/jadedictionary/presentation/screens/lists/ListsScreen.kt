@@ -18,32 +18,9 @@ import com.yonasoft.jadedictionary.data.models.TabItem
 @Composable
 fun ListsScreen(viewModel: ListsScreenViewModel = hiltViewModel()) {
 
-    val selectedTabIndex = viewModel.selectedTabIndex
-
-    val tabItems = listOf(
-        TabItem(
-            title = "ALl",
-            unselectedIcon =  Icons.Outlined.AllInclusive,
-            selectedIcon = Icons.Filled.AllInclusive,
-        ),
-        TabItem(
-            title = "Local",
-            unselectedIcon =  Icons.Outlined.Storage,
-            selectedIcon = Icons.Filled.Storage,
-        )
-        ,
-        TabItem(
-            title = "Account",
-            unselectedIcon =  Icons.Outlined.AccountCircle,
-            selectedIcon = Icons.Filled.AccountCircle,
-        )
-    )
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TabRow(selectedTabIndex = selectedTabIndex.value){
 
-        }
     }
 }

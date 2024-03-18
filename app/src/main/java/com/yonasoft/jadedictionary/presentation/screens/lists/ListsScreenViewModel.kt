@@ -11,5 +11,5 @@ class ListsScreenViewModel @Inject constructor(
     private val wordRepository: WordRepository,
 ) :
     ViewModel() {
-        var selectedTabIndex = mutableStateOf(0)
+
 }
