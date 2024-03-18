@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.yonasoft.jadedictionary.data.constants.NavItems
 import com.yonasoft.jadedictionary.data.models.NavigationItem
-import com.yonasoft.jadedictionary.ui.components.appbar.JadeAppBar
-import com.yonasoft.jadedictionary.ui.components.drawer.JadeModalDrawerSheet
+import com.yonasoft.jadedictionary.presentation.components.appbar.JadeAppBar
+import com.yonasoft.jadedictionary.presentation.components.drawer.JadeModalDrawerSheet
 import com.yonasoft.jadedictionary.ui.theme.JadeDictionaryTheme
 import com.yonasoft.jadedictionary.util.setupNavigation
 import dagger.hilt.android.AndroidEntryPoint
