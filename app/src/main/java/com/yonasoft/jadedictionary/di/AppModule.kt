@@ -12,7 +12,9 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.db.word.WordDatabase
+import com.yonasoft.jadedictionary.data.db.wordlist.WordListDatabase
 import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
+import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.Module
 import dagger.Provides
@@ -32,6 +34,14 @@ internal object AppModule {
         db: WordDatabase,
     ): WordRepository {
         return WordRepository(db.dao())
+    }
+
+    @Provides
+    @Singleton
+    fun provideWordListRepository(
+        db: WordListDatabase,
+    ): WordListRepository {
+        return WordListRepository(db.dao())
     }
 
     @Provides
@@ -89,5 +99,13 @@ internal object AppModule {
     @Singleton
     fun provideFirebaseStorage(): FirebaseStorage {
         return Firebase.storage
+    }
+
+    @Provides
+    @Singleton
+    fun provideWordListDatabase(@ApplicationContext context: Context): WordListDatabase {
+        return Room.databaseBuilder(context, WordListDatabase::class.java, "word_lists.db")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

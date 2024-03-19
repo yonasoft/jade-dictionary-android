@@ -10,10 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -31,14 +27,14 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
     val history = viewModel.history.collectAsState()
     val searchResults = viewModel.searchResults.collectAsState()
 
-    var isWordDialogOpen by remember { mutableStateOf(false) }
+    val isWordDialogOpen = viewModel.isWordDialogOpen
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 2.dp)
     ) {
-        JadeSearchBar(query = query.value, active = active.value, onSearch = {
+        JadeSearchBar(query = query, active = active, onSearch = {
             viewModel.onSearch(it)
             viewModel.addToHistory(it)
             query.value = ""
@@ -67,12 +63,14 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 searchResults.value.size
-            ) { it ->
+            ) {
                 val word = searchResults.value[it]
                 WordRow(
                     word = word,
-                    showDialog = { isOpen -> isWordDialogOpen = isOpen },
-                    isDialogOpen = isWordDialogOpen,
+                    onClick = {
+                        isWordDialogOpen.value =  true
+                    },
+                    isDialogOpen = isWordDialogOpen
                 )
                 Divider(color = Color.Black)
             }

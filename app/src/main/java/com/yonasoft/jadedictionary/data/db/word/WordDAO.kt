@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 @Dao
-interface WordDao {
+interface WordDAO {
     @Query(
         """
     SELECT * FROM words 

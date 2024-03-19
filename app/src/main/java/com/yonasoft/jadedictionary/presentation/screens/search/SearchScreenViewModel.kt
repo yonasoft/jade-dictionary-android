@@ -20,7 +20,7 @@ class SearchScreenViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-
+    val isWordDialogOpen = mutableStateOf(false)
     private val _searchResults = MutableStateFlow<List<Word>>(emptyList())
     private val _history = MutableStateFlow<List<String>>(emptyList())
     val searchQuery = mutableStateOf("")

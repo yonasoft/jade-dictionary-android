@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,80 +35,72 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yonasoft.jadedictionary.data.models.Word
 
-
 @Composable
-fun WordRow(word: Word, showDialog: (Boolean) -> Unit, isDialogOpen: Boolean) {
-
+fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>) {
     var menuExpanded by remember { mutableStateOf(false) }
 
-    if (isDialogOpen) {
-        WordDetailDialog(word = word, onDismiss = { showDialog(false) })
+    // Detail Dialog
+    if (isDialogOpen.value) {
+        WordDetailDialog(word = word, onDismiss = { isDialogOpen.value = false })
     }
 
-
-    if (isDialogOpen) {
-        WordDetailDialog(word = word, onDismiss = { showDialog(false) })
-    }
-
-    val traditionalText =
-        if (word.traditional == word.simplified) "" else "(${word.traditional})"
+    val traditionalText = if (word.traditional == word.simplified) "" else "(${word.traditional})"
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 100.dp)
             .padding(horizontal = 4.dp)
+        // Make the entire row clickable to show the word detail
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
                 .defaultMinSize(minHeight = 100.dp)
-                .clickable { showDialog(true) }, verticalArrangement = Arrangement.Center
+                .clickable { onClick() },
+            verticalArrangement = Arrangement.Center
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .weight(.5f),
-                    text = word.simplified + traditionalText,
+                        .weight(0.5f),
+                    text = "${word.simplified} $traditionalText",
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .weight(.5f),
-                    text = word.pinyin ?: ("N/A"),
+                        .weight(0.5f),
+                    text = word.pinyin ?: "N/A",
                     textAlign = TextAlign.Center,
-                    fontSize = 16.sp,
+                    fontSize = 16.sp
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight(align = Alignment.CenterVertically),
-                text = word.definition ?: ("N/A"),
+                    .wrapContentHeight(Alignment.CenterVertically),
+                text = word.definition ?: "N/A",
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
                 fontStyle = FontStyle.Italic,
                 overflow = TextOverflow.Ellipsis
             )
-
         }
         IconButton(
-            onClick = {
-                menuExpanded = true
-            }, modifier = Modifier.align(Alignment.CenterVertically)
+            onClick = { menuExpanded = true },
+            modifier = Modifier.align(Alignment.CenterVertically)
         ) {
             Icon(
                 imageVector = Icons.Filled.MoreVert,
-                contentDescription = "Menu Icon",
+                contentDescription = "More Options"
             )
             DropdownMenu(
                 expanded = menuExpanded,
@@ -116,17 +109,14 @@ fun WordRow(word: Word, showDialog: (Boolean) -> Unit, isDialogOpen: Boolean) {
                 DropdownMenuItem(
                     text = { Text("Add to List") },
                     onClick = {
-                        // Handle add to list here
+                        // Action to add the word to a list
                         menuExpanded = false
                     },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.List,
-                            contentDescription = "Add to List"
-                        )
-                    }
+                    leadingIcon = { Icon(Icons.Filled.List, contentDescription = "Add to List") }
                 )
+                // Add more actions here if necessary, e.g., edit or remove
             }
         }
     }
 }
+
