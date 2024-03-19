@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
+import com.yonasoft.jadedictionary.data.enums.SortOption
 import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +26,9 @@ class ListsScreenViewModel @Inject constructor(
     ViewModel() {
     val query = mutableStateOf("")
     val isActive = mutableStateOf(false)
-    val isExpanded = mutableStateOf(false)
+
+    var showBottomSheet =  mutableStateOf(false)
+    val currentSortMethod = mutableStateOf(SortOption.DATE_RECENT)
 
     val addTitle = mutableStateOf("")
     val addDescription = mutableStateOf("")
@@ -57,6 +60,23 @@ class ListsScreenViewModel @Inject constructor(
             newHistory.removeAt(index)
             _history.value = newHistory
             storeSearchHistory.storeSearchHistory(newHistory)
+        }
+    }
+
+    private fun sortWordLists(lists: List<WordList>, sortMethod: SortOption): List<WordList> {
+        return when (sortMethod) {
+            SortOption.TITLE_ASC -> lists.sortedBy { it.title.lowercase() }
+            SortOption.TITLE_DESC -> lists.sortedByDescending { it.title.lowercase() }
+            SortOption.DATE_RECENT -> lists.sortedByDescending { it.lastUpdatedAt }
+            SortOption.DATE_LEAST_RECENT -> lists.sortedBy { it.lastUpdatedAt }
+        }
+    }
+
+    fun updateSortMethod(method: SortOption) {
+        currentSortMethod.value = method
+        viewModelScope.launch {
+            val sortedLists = sortWordLists(_wordLists.value, method)
+            _wordLists.value = sortedLists
         }
     }
 
