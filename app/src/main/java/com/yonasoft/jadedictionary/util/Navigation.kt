@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.yonasoft.jadedictionary.data.constants.Screen
 import com.yonasoft.jadedictionary.presentation.screens.account.AccountScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.ListsScreen
+import com.yonasoft.jadedictionary.presentation.screens.lists.add_word_list_screen.AddWordListScreen
 import com.yonasoft.jadedictionary.presentation.screens.search.SearchScreen
 
 @Composable
@@ -16,7 +17,10 @@ fun setupNavigation(navController: NavHostController){
             SearchScreen()
         }
         composable(Screen.Lists.route){
-            ListsScreen()
+            ListsScreen(navController = navController)
+        }
+        composable(Screen.AddList.route){
+            AddWordListScreen(navController = navController)
         }
         composable(Screen.Account.route){
             AccountScreen(navController = navController)

@@ -67,7 +67,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("com.google.code.gson:gson:2.10.1")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     val navVersion = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$navVersion")
