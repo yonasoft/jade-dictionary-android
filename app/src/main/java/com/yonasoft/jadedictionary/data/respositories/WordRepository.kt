@@ -36,7 +36,9 @@ class WordRepository(private val dao: WordDAO) {
         return dao.searchWordByPinYin(normalizedQuery)
     }
 
-    private fun getTen(): Flow<List<Word>> {
-        return dao.getFirstTenWords()
+    suspend fun fetchWordById(id: Int): Word? {
+        return dao.getWordById(id)
     }
+
+
 }

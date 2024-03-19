@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -37,11 +38,13 @@ fun WordListRow(wordList: WordList, onClick: () -> Unit, onDelete: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 100.dp)
-            .padding(horizontal = 4.dp)
+            .padding(horizontal = 4.dp),
+        verticalAlignment =Alignment.CenterVertically
         // Make the entire row clickable
     ) {
         Column(
             modifier = Modifier
+                .fillMaxHeight()
                 .weight(1f)
                 .padding(end = 16.dp)
                 .clickable(onClick = onClick), // Add padding to prevent text from overlapping with the icon button
@@ -60,7 +63,8 @@ fun WordListRow(wordList: WordList, onClick: () -> Unit, onDelete: () -> Unit) {
             )
         }
         // Action Button for more options
-        IconButton(onClick = { menuExpanded = true }) {
+        IconButton(
+            onClick = { menuExpanded = true }) {
             Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
             DropdownMenu(
                 expanded = menuExpanded,

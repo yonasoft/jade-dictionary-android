@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.models.Word
+import com.yonasoft.jadedictionary.data.models.WordList
+import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     private val wordRepository: WordRepository,
+    private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
 ) :
     ViewModel() {
@@ -28,8 +31,12 @@ class SearchScreenViewModel @Inject constructor(
     val active = mutableStateOf(false)
     val searchResults = _searchResults.asStateFlow()
 
+    private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
+    val wordLists= _searchResults.asStateFlow()
+
     init {
         getHistory()
+        getWordLists()
     }
 
     private fun getHistory() {
@@ -66,5 +73,9 @@ class SearchScreenViewModel @Inject constructor(
                 Log.i("onSearch", words.toString())
             }
         }
+    }
+
+    fun getWordLists(){
+        wordListRepository.getAllWordLists()
     }
 }

@@ -1,6 +1,7 @@
 package com.yonasoft.jadedictionary.presentation.screens.lists
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -9,8 +10,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.enums.SortOption
+import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
+import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +22,8 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class ListsScreenViewModel @Inject constructor(
+class ListsViewModel @Inject constructor(
+    private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
 ) :
@@ -27,19 +31,20 @@ class ListsScreenViewModel @Inject constructor(
     val query = mutableStateOf("")
     val isActive = mutableStateOf(false)
 
-    var showBottomSheet =  mutableStateOf(false)
+    var showBottomSheet = mutableStateOf(false)
     val currentSortMethod = mutableStateOf(SortOption.DATE_RECENT)
-
     val addTitle = mutableStateOf("")
     val addDescription = mutableStateOf("")
-
-    val wordDetail = mutableStateOf<WordList?>(null)
-
     private val _history = MutableStateFlow<List<String>>(emptyList())
     val history = _history.asStateFlow()
-
     private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
     val wordLists = _wordLists.asStateFlow()
+
+    val editTitle = mutableStateOf("")
+    val editDescription = mutableStateOf("")
+    val wordListDetail = mutableStateOf<WordList?>(null)
+    private val _wordListWords = MutableStateFlow<List<Word>>(emptyList())
+    val wordListWords = _wordListWords.asStateFlow()
 
     init {
         getAllWordLists()
@@ -104,14 +109,46 @@ class ListsScreenViewModel @Inject constructor(
                 wordIds = listOf() // Initialize with an empty list or whatever default you need
             )
             wordListRepository.insertWordList(wordList)
-            Toast.makeText(context, "Word List: $title added", Toast.LENGTH_SHORT)
+            Toast.makeText(context, "Word List: $title added", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun deleteWordList(context: Context, wordList: WordList){
+    fun deleteWordList(context: Context, wordList: WordList) {
         viewModelScope.launch {
             wordListRepository.deleteWordList(wordList)
-            Toast.makeText(context, "Word List: ${wordList.title} added", Toast.LENGTH_SHORT)
+            Toast.makeText(context, "Word List: ${wordList.title} added", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun fetchWords() {
+        viewModelScope.launch {
+            val wordIds = wordListDetail.value?.wordIds ?: emptyList()
+            val words = wordIds.mapNotNull { id ->
+                wordRepository.fetchWordById(id)
+            }
+            _wordListWords.value = words
+        }
+    }
+
+    fun saveWordList() {
+        viewModelScope.launch {
+            val newWordList = wordListDetail.value!!.copy(
+                title = editTitle.value,
+                description = editDescription.value,
+                lastUpdatedAt = Date(),
+            )
+            wordListRepository.updateWordList(newWordList)
+        }
+    }
+    fun fetchWordListById(wordListId: Int) {
+        viewModelScope.launch {
+            val wordList = wordListRepository.getWordListByLocalId(wordListId)
+            Log.d("WordListDetail", "Fetched word list: $wordList")
+            wordListDetail.value = wordList
+            if (wordList != null) {
+                editTitle.value = wordList.title
+                editDescription.value = wordList.description ?: ""
+            }
         }
     }
 }

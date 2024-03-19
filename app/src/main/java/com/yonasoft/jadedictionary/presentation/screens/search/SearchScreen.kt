@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -68,9 +74,28 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
                 WordRow(
                     word = word,
                     onClick = {
-                        isWordDialogOpen.value =  true
+                        isWordDialogOpen.value = true
                     },
-                    isDialogOpen = isWordDialogOpen
+                    isDialogOpen = isWordDialogOpen,
+                    dropdownMenu = { menuExpanded ->
+                        DropdownMenu(
+                            expanded = menuExpanded.value,
+                            onDismissRequest = { menuExpanded.value = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Add to List") },
+                                onClick = {
+                                    menuExpanded.value = false
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.List,
+                                        contentDescription = "Add to List"
+                                    )
+                                }
+                            )
+                        }
+                    }
                 )
                 Divider(color = Color.Black)
             }

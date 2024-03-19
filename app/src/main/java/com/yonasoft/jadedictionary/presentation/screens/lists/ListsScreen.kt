@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class
+@file:OptIn(
+    ExperimentalMaterial3Api::class
 )
 
 package com.yonasoft.jadedictionary.presentation.screens.lists
@@ -48,7 +49,10 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
-fun ListsScreen(navController: NavController, viewModel: ListsScreenViewModel = hiltViewModel()) {
+fun ListsScreen(
+    navController: NavController,
+    viewModel: ListsViewModel = hiltViewModel(),
+) {
 
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
@@ -92,9 +96,10 @@ fun ListsScreen(navController: NavController, viewModel: ListsScreenViewModel = 
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
         ) {
-
             OutlinedButton(
                 modifier = Modifier
                     .weight(1f)
@@ -132,7 +137,9 @@ fun ListsScreen(navController: NavController, viewModel: ListsScreenViewModel = 
                 val wordList = wordLists.value[it]
                 WordListRow(
                     wordList = wordList,
-                    onClick = {},
+                    onClick = {
+                        navController.navigate(Screen.WordList.createRoute(wordList.localId!!))
+                    },
                     onDelete = {
                         viewModel.deleteWordList(context = context, wordList = wordList)
                     },

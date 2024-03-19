@@ -36,11 +36,16 @@ import androidx.compose.ui.unit.sp
 import com.yonasoft.jadedictionary.data.models.Word
 
 @Composable
-fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>) {
+fun WordRow(
+    word: Word,
+    onClick: () -> Unit,
+    isDialogOpen: MutableState<Boolean>?,
+    dropdownMenu: @Composable (menuExpanded:MutableState<Boolean>) -> Unit
+) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     // Detail Dialog
-    if (isDialogOpen.value) {
+    if (isDialogOpen != null && isDialogOpen.value) {
         WordDetailDialog(word = word, onDismiss = { isDialogOpen.value = false })
     }
 
@@ -102,20 +107,7 @@ fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = "More Options"
             )
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Add to List") },
-                    onClick = {
-                        // Action to add the word to a list
-                        menuExpanded = false
-                    },
-                    leadingIcon = { Icon(Icons.Filled.List, contentDescription = "Add to List") }
-                )
-                // Add more actions here if necessary, e.g., edit or remove
-            }
+
         }
     }
 }
