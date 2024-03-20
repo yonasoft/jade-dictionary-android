@@ -173,7 +173,8 @@ class AccountViewModel @Inject constructor(
     fun signInAnonymously() {
         viewModelScope.launch {
             try {
-                FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
+                FirebaseAuth.getInstance().signInAnonymously()
+                    .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Sign-in success, update the UI with the signed-in user's information
                         Log.d("AccountViewModel", "signInAnonymously:success")

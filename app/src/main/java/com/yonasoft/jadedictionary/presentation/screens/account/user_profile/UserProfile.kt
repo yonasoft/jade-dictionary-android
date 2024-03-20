@@ -30,6 +30,8 @@ fun UserProfile(
 ) {
 
     val context = LocalContext.current
+    val auth = viewModel.auth
+
     val isEditDisplayName = viewModel.isEditDisplayName
     val displayNameField = viewModel.displayNameField
     val currDisplayName = viewModel.currDisplayName
@@ -107,23 +109,24 @@ fun UserProfile(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-
-        PasswordSettingCard(
-            password = password.value,
-            confirmPassword = confirmPassword.value,
-            onPasswordChange = {
-                password.value = it
-            },
-            onConfirmPasswordChange = {
-                confirmPassword.value = it
-            },
-            passwordError = passwordError.value,
-            passwordVisible = passwordVisible.value,
-            togglePasswordVisible = {
-                passwordVisible.value = !passwordVisible.value
+        if (!auth.value.currentUser!!.isAnonymous) {
+            PasswordSettingCard(
+                password = password.value,
+                confirmPassword = confirmPassword.value,
+                onPasswordChange = {
+                    password.value = it
+                },
+                onConfirmPasswordChange = {
+                    confirmPassword.value = it
+                },
+                passwordError = passwordError.value,
+                passwordVisible = passwordVisible.value,
+                togglePasswordVisible = {
+                    passwordVisible.value = !passwordVisible.value
+                }
+            ) {
+                viewModel.savePassword()
             }
-        ) {
-            viewModel.savePassword()
         }
 
         Spacer(modifier = Modifier.height(12.dp))
