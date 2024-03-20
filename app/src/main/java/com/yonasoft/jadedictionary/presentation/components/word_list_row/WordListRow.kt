@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,21 +27,27 @@ import androidx.compose.ui.unit.sp
 import com.yonasoft.jadedictionary.data.models.WordList
 
 @Composable
-fun WordListRow(wordList: WordList, onClick: () -> Unit, onDelete: () -> Unit) {
+fun WordListRow(
+    wordList: WordList,
+    onClick: () -> Unit,
+    dropdownMenu: (@Composable (menuExpanded: MutableState<Boolean>) -> Unit)? = null,
+) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     Row(
         Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 100.dp)
-            .padding(horizontal = 4.dp)
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
         // Make the entire row clickable
     ) {
         Column(
             modifier = Modifier
+                .fillMaxHeight()
                 .weight(1f)
                 .padding(end = 16.dp)
-                .clickable(onClick = onClick), // Add padding to prevent text from overlapping with the icon button
+                .clickable(onClick = {onClick()}), // Add padding to prevent text from overlapping with the icon button
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
@@ -59,19 +62,11 @@ fun WordListRow(wordList: WordList, onClick: () -> Unit, onDelete: () -> Unit) {
                 overflow = TextOverflow.Ellipsis // Adds ellipsis for overflow
             )
         }
-        // Action Button for more options
-        IconButton(onClick = { menuExpanded = true }) {
-            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    onClick = { onDelete(); menuExpanded = false },
-                    text = { Text("Remove List") },
-                    leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Delete List") }
-                )
-                // Add more actions as needed
+        if (dropdownMenu != null && menuExpanded) {
+            IconButton(
+                onClick = { menuExpanded = true }) {
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
+                dropdownMenu(remember { mutableStateOf(menuExpanded) })
             }
         }
     }

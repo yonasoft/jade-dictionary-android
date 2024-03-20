@@ -20,12 +20,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.yonasoft.jadedictionary.presentation.screens.lists.ListsScreenViewModel
+import com.yonasoft.jadedictionary.presentation.screens.lists.ListsViewModel
 
 @Composable
 fun AddWordListScreen(
     navController: NavController,
-    viewModel: ListsScreenViewModel = hiltViewModel()
+    viewModel: ListsViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current

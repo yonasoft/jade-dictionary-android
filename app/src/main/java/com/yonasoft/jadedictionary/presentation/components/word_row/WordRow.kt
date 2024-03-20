@@ -1,6 +1,5 @@
 package com.yonasoft.jadedictionary.presentation.components.word_row
 
-import com.yonasoft.jadedictionary.presentation.components.dialogs.word_detail_dialog.WordDetailDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,10 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,13 +31,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yonasoft.jadedictionary.data.models.Word
+import com.yonasoft.jadedictionary.presentation.components.dialogs.word_detail_dialog.WordDetailDialog
 
 @Composable
-fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>) {
+fun WordRow(
+    word: Word,
+    onClick: () -> Unit,
+    isSortable: Boolean = false,
+    isDialogOpen: MutableState<Boolean>?,
+    dropdownMenu: (@Composable (menuExpanded:MutableState<Boolean>) -> Unit)?
+) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     // Detail Dialog
-    if (isDialogOpen.value) {
+    if (isDialogOpen != null && isDialogOpen.value) {
         WordDetailDialog(word = word, onDismiss = { isDialogOpen.value = false })
     }
 
@@ -53,6 +57,18 @@ fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>
             .padding(horizontal = 4.dp)
         // Make the entire row clickable to show the word detail
     ) {
+
+        if(isSortable) {
+            IconButton(
+                onClick = { menuExpanded = true },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Sort,
+                    contentDescription = "More Options"
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -102,19 +118,8 @@ fun WordRow(word: Word, onClick: () -> Unit, isDialogOpen: MutableState<Boolean>
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = "More Options"
             )
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Add to List") },
-                    onClick = {
-                        // Action to add the word to a list
-                        menuExpanded = false
-                    },
-                    leadingIcon = { Icon(Icons.Filled.List, contentDescription = "Add to List") }
-                )
-                // Add more actions here if necessary, e.g., edit or remove
+            if (dropdownMenu!=null && menuExpanded){
+                dropdownMenu(remember{mutableStateOf(menuExpanded)})
             }
         }
     }

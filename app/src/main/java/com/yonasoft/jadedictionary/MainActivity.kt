@@ -23,7 +23,7 @@ import com.yonasoft.jadedictionary.data.models.NavigationItem
 import com.yonasoft.jadedictionary.presentation.components.appbar.JadeAppBar
 import com.yonasoft.jadedictionary.presentation.components.drawer.JadeModalDrawerSheet
 import com.yonasoft.jadedictionary.ui.theme.JadeDictionaryTheme
-import com.yonasoft.jadedictionary.util.setupNavigation
+import com.yonasoft.jadedictionary.util.SetupNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -81,7 +81,7 @@ fun JadeDictionaryApp() {
                 modifier = Modifier
             ) {
                 Surface(modifier = Modifier.padding(it)) {
-                    setupNavigation(navController = navController)
+                    SetupNavigation(navController = navController)
                 }
             }
         }

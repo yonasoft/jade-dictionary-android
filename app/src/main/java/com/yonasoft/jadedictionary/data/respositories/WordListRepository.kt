@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 class WordListRepository(private val dao: WordListDAO) {
 
-
     fun getAllWordLists(): Flow<List<WordList>> = dao.getAllWordLists()
 
     suspend fun insertWordList(wordList: WordList) = dao.insertWordList(wordList)

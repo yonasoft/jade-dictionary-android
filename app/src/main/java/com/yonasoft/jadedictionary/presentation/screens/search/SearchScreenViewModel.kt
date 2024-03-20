@@ -1,21 +1,28 @@
 package com.yonasoft.jadedictionary.presentation.screens.search
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.models.Word
+import com.yonasoft.jadedictionary.data.models.WordList
+import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     private val wordRepository: WordRepository,
+    private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
 ) :
     ViewModel() {
@@ -28,8 +35,14 @@ class SearchScreenViewModel @Inject constructor(
     val active = mutableStateOf(false)
     val searchResults = _searchResults.asStateFlow()
 
+    private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
+    val wordLists= _wordLists.asStateFlow()
+    val selectedWord = mutableStateOf<Word?>(null)
+    val showAddToListBottomSheet = mutableStateOf(false)
+
     init {
         getHistory()
+        getWordLists()
     }
 
     private fun getHistory() {
@@ -65,6 +78,31 @@ class SearchScreenViewModel @Inject constructor(
                 _searchResults.value = words
                 Log.i("onSearch", words.toString())
             }
+        }
+    }
+
+    private fun getWordLists() {
+        viewModelScope.launch {
+            wordListRepository.getAllWordLists().collect {
+                _wordLists.value = it
+            }
+        }
+    }
+
+    fun addToWordList(context:Context, wordList: WordList, word:Word){
+        val wordIds = wordList.wordIds
+        if(word.id in wordIds){
+            Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT)
+            return
+        }
+        viewModelScope.launch {
+            val wordId = word.id
+            val newWordListIds = mutableListOf<Int>()
+            newWordListIds.addAll(wordList.wordIds)
+            newWordListIds.add(wordId!!)
+            val newWordList = wordList.copy(wordIds = newWordListIds, lastUpdatedAt = Date())
+            Log.i("wordlist", "$newWordList")
+            wordListRepository.updateWordList(newWordList)
         }
     }
 }
