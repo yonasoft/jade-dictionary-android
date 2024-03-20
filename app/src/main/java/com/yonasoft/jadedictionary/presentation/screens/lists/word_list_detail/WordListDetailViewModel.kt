@@ -32,13 +32,12 @@ class WordListDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val newWordIds = wordListDetail.value?.wordIds?.toMutableList() ?: mutableListOf()
             newWordIds.remove(word.id)
-
             wordListDetail.value = wordListDetail.value?.copy(
                 wordIds = newWordIds,
                 lastUpdatedAt = Date()
             )?.also { updatedList ->
                 wordListRepository.addOrUpdateWordList(updatedList)
-                fetchWords()
+                fetchWords(newWordIds)
             }
         }
     }
@@ -56,9 +55,8 @@ class WordListDetailViewModel @Inject constructor(
         }
     }
 
-    fun fetchWords() {
+    fun fetchWords(wordIds:List<Long> = wordListDetail.value?.wordIds?: emptyList()) {
         viewModelScope.launch {
-            val wordIds = wordListDetail.value?.wordIds
             val words = wordIds!!.mapNotNull { id ->
                 wordRepository.fetchWordById(id)
             }

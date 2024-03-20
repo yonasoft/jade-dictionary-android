@@ -92,7 +92,6 @@ fun WordListDetailScreen(
                                 text = { Text("Remove") },
                                 onClick = {
                                     viewModel.removeWord(word)
-                                    viewModel.fetchWords()
                                     menuExpanded.value = false
                                 },
                                 leadingIcon = {
