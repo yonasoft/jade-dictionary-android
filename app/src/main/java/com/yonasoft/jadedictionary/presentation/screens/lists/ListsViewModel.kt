@@ -15,8 +15,10 @@ import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -30,6 +32,7 @@ class ListsViewModel @Inject constructor(
     ViewModel() {
     val query = mutableStateOf("")
     val isActive = mutableStateOf(false)
+    val isSyncing = mutableStateOf(false)
 
     var showBottomSheet = mutableStateOf(false)
     val currentSortMethod = mutableStateOf(SortOption.DATE_RECENT)
@@ -40,14 +43,9 @@ class ListsViewModel @Inject constructor(
     private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
     val wordLists = _wordLists.asStateFlow()
 
-    val editTitle = mutableStateOf("")
-    val editDescription = mutableStateOf("")
-    private val wordListDetail = mutableStateOf<WordList?>(null)
-    private val _wordListWords = MutableStateFlow<List<Word>>(emptyList())
-    val wordListWords = _wordListWords.asStateFlow()
 
     init {
-        getAllWordLists()
+        getAllWordList()
         getHistory()
     }
 
@@ -95,95 +93,44 @@ class ListsViewModel @Inject constructor(
         }
     }
 
-    private fun getAllWordLists() {
+    private fun getAllWordList() {
         viewModelScope.launch {
-            wordListRepository.getAllWordLists().collect {
-                _wordLists.value = it
-            }
-        }
-    }
-    fun searchWordList(searchQuery:String = query.value){
-        viewModelScope.launch {
-            wordListRepository.searchWordList(searchQuery).collect{
+            wordListRepository.getWordLists().collect{
                 _wordLists.value = it
             }
         }
     }
 
-
-    fun addWordList(
-        context: Context,
-        title: String = addTitle.value,
-        description: String? = addDescription.value
-    ) {
+    fun searchWordLists(searchQuery: String) {
         viewModelScope.launch {
-            val currentDate = Date() // Gets the current date and time
-            val wordList = WordList(
+            // Assuming getAllWordLists() can handle search queries or replace with appropriate search function
+            val updatedLists = wordListRepository.searchWordLists(searchQuery).first()
+            _wordLists.value = updatedLists
+        }
+    }
+
+    fun addWordList(title: String = addTitle.value, description: String? = null) {
+        viewModelScope.launch {
+            val newWordList = WordList(
                 title = title,
-                description = description ?: "",
-                createdAt = currentDate,
-                lastUpdatedAt = currentDate,
+                description = description,
+                createdAt = Date(),
+                lastUpdatedAt = Date(),
                 userUid = Firebase.auth.currentUser?.uid ?: "",
-                wordIds = listOf() // Initialize with an empty list or whatever default you need
+                wordIds = emptyList()
             )
-            wordListRepository.insertWordList(wordList)
-            Toast.makeText(context, "Word List: $title added", Toast.LENGTH_SHORT).show()
+
+            // Add to local database
+            wordListRepository.addOrUpdateWordList(newWordList)
         }
     }
+
 
     fun deleteWordList(context: Context, wordList: WordList) {
         viewModelScope.launch {
-            wordListRepository.deleteWordList(wordList)
-            Toast.makeText(context, "Word List: ${wordList.title} added", Toast.LENGTH_SHORT).show()
+            wordListRepository.deleteWordList(wordList.firebaseId)
+            Toast.makeText(context, "Word List: ${wordList.title} removed", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun saveWordList() {
-        viewModelScope.launch {
-            val newWordList = wordListDetail.value!!.copy(
-                title = editTitle.value,
-                description = editDescription.value,
-                lastUpdatedAt = Date(),
-            )
-            wordListRepository.updateWordList(newWordList)
-        }
-    }
-
-    fun removeWord(word: Word) {
-        viewModelScope.launch {
-            val newWordIds = wordListDetail.value?.wordIds?.toMutableList() ?: mutableListOf()
-            newWordIds.remove(word.id)
-
-            wordListDetail.value = wordListDetail.value?.copy(
-                wordIds = newWordIds,
-                lastUpdatedAt = Date()
-            )?.also { updatedList ->
-                wordListRepository.updateWordList(updatedList)
-                fetchWords() // Refetch words to update UI
-            }
-        }
-    }
-
-    fun initiateWordDetails(wordListId: Int) {
-        viewModelScope.launch {
-            val wordList = wordListRepository.getWordListByLocalId(wordListId)
-            Log.d("WordListDetail", "Fetched word list: $wordList")
-            wordListDetail.value = wordList
-            if (wordList != null) {
-                editTitle.value = wordList.title
-                editDescription.value = wordList.description ?: ""
-            }
-            fetchWords()
-        }
-    }
-
-    fun fetchWords() {
-        viewModelScope.launch {
-            val wordIds = wordListDetail.value?.wordIds
-            val words = wordIds!!.mapNotNull { id ->
-                wordRepository.fetchWordById(id)
-            }
-            _wordListWords.value = words
-        }
-    }
 }

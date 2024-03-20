@@ -13,7 +13,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
-class FirebaseRepository(
+class FirebaseAuthRepository(
     private val firebaseAuth: FirebaseAuth,
     private val authUI: AuthUI,
     private val firestore: FirebaseFirestore,
@@ -63,10 +63,12 @@ class FirebaseRepository(
                 deleteOldUserImage()
             }
             photoUrl = uploadNewUserImage(newPhoto, onFail)!!
-            firestore.collection("users").document(user.uid).update(mapOf(
-                "photoURL" to photoUrl,
-                "photoFileName" to newPhoto.lastPathSegment // Or any filename logic you're using
-            )).await()
+            firestore.collection("users").document(user.uid).update(
+                mapOf(
+                    "photoURL" to photoUrl,
+                    "photoFileName" to newPhoto.lastPathSegment // Or any filename logic you're using
+                )
+            ).await()
 
         }
         updateDisplayInfoInAuth(
@@ -144,7 +146,10 @@ class FirebaseRepository(
     }
 
 
-    suspend fun uploadNewUserImage(newPhoto: Uri, onFail: (message: String) -> Unit): String? {
+    private suspend fun uploadNewUserImage(
+        newPhoto: Uri,
+        onFail: (message: String) -> Unit
+    ): String? {
         val storageReference = FirebaseStorage.getInstance().reference
         val userUid = user?.uid ?: return null // Early return if user is null
         val filePath = "$userUid/profile_pictures/${newPhoto.lastPathSegment}"
@@ -161,7 +166,6 @@ class FirebaseRepository(
             null
         }
     }
-
 
     fun addUserToFirestore(currentUser: FirebaseUser = getAuth().currentUser!!) {
         try {
@@ -222,7 +226,8 @@ class FirebaseRepository(
     }
 
     suspend fun deleteUserAccount(): Result<Boolean> {
-        val currentUserUid = firebaseAuth.currentUser?.uid ?: return Result.failure(Exception("No authenticated user found."))
+        val currentUserUid = firebaseAuth.currentUser?.uid
+            ?: return Result.failure(Exception("No authenticated user found."))
 
         return try {
             deleteOldUserImage()
@@ -245,5 +250,8 @@ class FirebaseRepository(
         return getAuth().signOut()
     }
 }
+
+
+
 
 

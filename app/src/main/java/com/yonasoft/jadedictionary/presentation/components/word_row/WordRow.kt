@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -37,7 +36,6 @@ import com.yonasoft.jadedictionary.presentation.components.dialogs.word_detail_d
 fun WordRow(
     word: Word,
     onClick: () -> Unit,
-    isSortable: Boolean = false,
     isDialogOpen: MutableState<Boolean>?,
     dropdownMenu: (@Composable (menuExpanded: MutableState<Boolean>) -> Unit)?
 ) {
@@ -57,18 +55,6 @@ fun WordRow(
             .padding(horizontal = 4.dp)
         // Make the entire row clickable to show the word detail
     ) {
-
-        if (isSortable) {
-            IconButton(
-                onClick = { menuExpanded = true },
-                modifier = Modifier.align(Alignment.CenterVertically)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Sort,
-                    contentDescription = "More Options"
-                )
-            }
-        }
         Column(
             modifier = Modifier
                 .weight(1f)

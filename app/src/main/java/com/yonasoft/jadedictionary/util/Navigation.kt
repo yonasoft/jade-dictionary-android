@@ -30,12 +30,12 @@ fun SetupNavigation(navController: NavHostController){
         composable(
             route = Screen.WordList.route,
             arguments = listOf(
-                navArgument("wordListId") { type = NavType.IntType }
+                navArgument("wordListId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             // Retrieve the wordListId from the arguments
-            val wordListId = backStackEntry.arguments?.getInt("wordListId") ?: 0 // Provide default value or handle error
-            WordListDetailScreen(navController = navController, wordListId = wordListId)
+            val wordListId = backStackEntry.arguments?.getString("wordListId") ?: 0 // Provide default value or handle error
+            WordListDetailScreen(navController = navController, wordListId = wordListId.toString())
         }
 
         composable(Screen.Account.route){

@@ -38,7 +38,7 @@ import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 @Composable
 fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
 
-    val context = LocalContext.current
+    LocalContext.current
     val scope = rememberCoroutineScope()
 
     val query = viewModel.searchQuery
@@ -128,7 +128,7 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
             scope = scope,
             wordLists = wordLists,
             onClick = { wordList ->
-                viewModel.addToWordList(context, wordList, viewModel.selectedWord.value!!)
+                viewModel.addToWordList(wordList, viewModel.selectedWord.value!!)
                 showAddToListBottomSheet.value = false
             }
         )

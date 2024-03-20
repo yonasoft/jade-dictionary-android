@@ -4,13 +4,15 @@
 
 package com.yonasoft.jadedictionary.presentation.screens.lists
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.yonasoft.jadedictionary.data.constants.Screen
 import com.yonasoft.jadedictionary.data.enums.SortOption
@@ -75,7 +79,7 @@ fun ListsScreen(
             query = query,
             active = isActive,
             onSearch = {
-                viewModel.searchWordList(it)
+                viewModel.searchWordLists(it)
                 viewModel.addToHistory(it)
                 query.value = ""
                 isActive.value = false
@@ -119,7 +123,7 @@ fun ListsScreen(
                     contentDescription = "Add button",
                 )
                 Text(
-                    text = "Sort Option: ${viewModel.currentSortMethod.value}",
+                    text = "Sort: ${viewModel.currentSortMethod.value}",
                     textAlign = TextAlign.Center
                 )
             }
@@ -127,6 +131,7 @@ fun ListsScreen(
                 modifier = Modifier
                     .padding(horizontal = 8.dp),
                 onClick = {
+
                     navController.navigate(Screen.AddList.route)
                 }) {
                 Icon(
@@ -136,7 +141,14 @@ fun ListsScreen(
                 Text(text = "Add List")
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        if (viewModel.isSyncing.value) {
+            // Display a syncing indicator
+            Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Syncing...", style = MaterialTheme.typography.bodySmall)
+            }
+        }
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 wordLists.value.size
@@ -145,7 +157,8 @@ fun ListsScreen(
                 WordListRow(
                     wordList = wordList,
                     onClick = {
-                        navController.navigate(Screen.WordList.createRoute(wordList.localId!!))
+                        Log.i("ids", "Id before nav ${wordList.firebaseId}")
+                        navController.navigate(Screen.WordList.createRoute(wordList.firebaseId!!))
                     },
                     dropdownMenu = { menuExpanded ->
                         DropdownMenu(
@@ -153,9 +166,19 @@ fun ListsScreen(
                             onDismissRequest = { menuExpanded.value = false }
                         ) {
                             DropdownMenuItem(
-                                onClick = { viewModel.deleteWordList(context = context, wordList = wordList); menuExpanded.value = false },
+                                onClick = {
+                                    viewModel.deleteWordList(
+                                        context = context,
+                                        wordList = wordList
+                                    ); menuExpanded.value = false
+                                },
                                 text = { Text("Remove List") },
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Delete List") }
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Delete List"
+                                    )
+                                }
                             )
                             // Add more actions as needed
                         }

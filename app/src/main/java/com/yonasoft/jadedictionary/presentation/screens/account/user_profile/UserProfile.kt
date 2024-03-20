@@ -65,7 +65,7 @@ fun UserProfile(
         Button(
             modifier = Modifier,
             onClick = {
-                viewModel.signOut(context)
+                viewModel.signOut()
             }) {
             Text(text = "Log out")
         }
@@ -94,7 +94,7 @@ fun UserProfile(
                 )
             },
             onSave = {
-                viewModel.updateDisplayInfo(context = context) {
+                viewModel.updateDisplayInfo {
                     if (displayNameField.value.isNotEmpty() && displayNameField.value != currDisplayName.value) {
                         val message =
                             if (it) "Display name already exists!" else "Display info successfully changed!"
@@ -123,7 +123,7 @@ fun UserProfile(
                 passwordVisible.value = !passwordVisible.value
             }
         ) {
-            viewModel.savePassword(context)
+            viewModel.savePassword()
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -141,10 +141,10 @@ fun UserProfile(
         showError = showDeleteConfirmationError,
         onDelete = { _, _ -> // Note: Adjusted to match (Boolean, String?) -> Unit
             if (confirmationText.value == "Delete Account") {
-                viewModel.initiateAccountDeletion(context) { deletionSuccess, errorMessage ->
+                viewModel.initiateAccountDeletion { deletionSuccess, errorMessage ->
                     if (deletionSuccess) {
                         showToast(context, "Account successfully deleted.")
-                        viewModel.signOut(context)
+                        viewModel.signOut()
                         // Optionally reset states or navigate away since the account is deleted.
                     } else {
                         showToast(

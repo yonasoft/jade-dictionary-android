@@ -52,6 +52,6 @@ interface WordDAO {
     fun searchWordByPinYin(query: String): Flow<List<Word>>
 
     @Query("SELECT * FROM words WHERE id = :id")
-    suspend fun getWordById(id: Int): Word?
+    suspend fun getWordById(id: Long): Word?
 
 }

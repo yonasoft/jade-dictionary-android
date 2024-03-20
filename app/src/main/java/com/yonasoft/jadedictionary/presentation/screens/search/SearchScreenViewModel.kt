@@ -12,15 +12,16 @@ import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
@@ -83,26 +84,26 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun getWordLists() {
         viewModelScope.launch {
-            wordListRepository.getAllWordLists().collect {
+            wordListRepository.getWordLists().collect {
                 _wordLists.value = it
             }
         }
     }
 
-    fun addToWordList(context:Context, wordList: WordList, word:Word){
+    fun addToWordList(wordList: WordList, word:Word){
         val wordIds = wordList.wordIds
         if(word.id in wordIds){
-            Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT)
+            Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT).show()
             return
         }
         viewModelScope.launch {
             val wordId = word.id
-            val newWordListIds = mutableListOf<Int>()
+            val newWordListIds = mutableListOf<Long>()
             newWordListIds.addAll(wordList.wordIds)
             newWordListIds.add(wordId!!)
             val newWordList = wordList.copy(wordIds = newWordListIds, lastUpdatedAt = Date())
             Log.i("wordlist", "$newWordList")
-            wordListRepository.updateWordList(newWordList)
+            wordListRepository.addOrUpdateWordList(newWordList)
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,25 +26,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
-import com.yonasoft.jadedictionary.presentation.screens.lists.ListsViewModel
 
 
 @Composable
 fun WordListDetailScreen(
     navController: NavController,
-    wordListId: Int, // Assume this is passed correctly through the composable parameters
-    viewModel: ListsViewModel = hiltViewModel()
+    wordListId:String,
+    viewModel: WordListDetailViewModel = hiltViewModel()
 ) {
+
+    LaunchedEffect(key1 = wordListId){
+        viewModel.initiateWordDetails(wordListId)
+    }
 
     val words by viewModel.wordListWords.collectAsState()
     val isWordDialogOpen = remember {
         mutableStateOf(false)
     }
 
-    LaunchedEffect(key1 = wordListId) {
-        viewModel.initiateWordDetails(wordListId)
-        Log.i("detail word ids", "$words")
-    }
 
     Column(
         modifier = Modifier.padding(8.dp),
@@ -84,7 +82,6 @@ fun WordListDetailScreen(
                     onClick = {
                         isWordDialogOpen.value = true
                     },
-                    isSortable = true,
                     isDialogOpen = isWordDialogOpen,
                     dropdownMenu = { menuExpanded ->
                         DropdownMenu(

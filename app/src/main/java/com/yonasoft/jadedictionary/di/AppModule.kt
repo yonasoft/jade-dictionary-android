@@ -7,13 +7,16 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.firestoreSettings
+import com.google.firebase.firestore.ktx.memoryCacheSettings
+import com.google.firebase.firestore.ktx.persistentCacheSettings
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.db.word.WordDatabase
-import com.yonasoft.jadedictionary.data.db.wordlist.WordListDatabase
-import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
+import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.Module
@@ -39,9 +42,10 @@ internal object AppModule {
     @Provides
     @Singleton
     fun provideWordListRepository(
-        db: WordListDatabase,
+        firestore: FirebaseFirestore,
+        firebaseauth:FirebaseAuth
     ): WordListRepository {
-        return WordListRepository(db.dao())
+        return WordListRepository(firestore = firestore, userUid = firebaseauth.currentUser!!.uid)
     }
 
     @Provides
@@ -51,8 +55,8 @@ internal object AppModule {
         authUI: AuthUI,
         fireStore: FirebaseFirestore,
         firebaseStorage: FirebaseStorage
-    ): FirebaseRepository {
-        return FirebaseRepository(
+    ): FirebaseAuthRepository {
+        return FirebaseAuthRepository(
             firebaseAuth = firebaseAuth,
             authUI = authUI,
             firestore = fireStore,
@@ -92,7 +96,15 @@ internal object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore {
-        return Firebase.firestore
+        val db = Firebase.firestore
+        val settings = firestoreSettings {
+            // Use memory cache
+            setLocalCacheSettings(memoryCacheSettings {})
+            // Use persistent disk cache (default)
+            setLocalCacheSettings(persistentCacheSettings {})
+        }
+        db.firestoreSettings = settings
+        return db
     }
 
     @Provides
@@ -101,11 +113,4 @@ internal object AppModule {
         return Firebase.storage
     }
 
-    @Provides
-    @Singleton
-    fun provideWordListDatabase(@ApplicationContext context: Context): WordListDatabase {
-        return Room.databaseBuilder(context, WordListDatabase::class.java, "word_lists.db")
-            .fallbackToDestructiveMigration()
-            .build()
-    }
 }

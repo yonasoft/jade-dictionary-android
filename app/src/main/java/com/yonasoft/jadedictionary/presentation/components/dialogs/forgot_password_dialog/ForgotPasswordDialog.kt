@@ -39,7 +39,7 @@ fun ForgotPasswordDialog(viewModel:AccountViewModel, showDialog: MutableState<Bo
             },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.forgotPassword(context, email)
+                    viewModel.forgotPassword(email)
                     showDialog.value = false
                 }) {
                     Text("Send")

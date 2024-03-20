@@ -75,7 +75,7 @@ fun AddWordListScreen(
         ) {
             Button(
                 onClick = {
-                    viewModel.addWordList(context)
+                    viewModel.addWordList()
                     navController.navigateUp()
                 }
             ) {

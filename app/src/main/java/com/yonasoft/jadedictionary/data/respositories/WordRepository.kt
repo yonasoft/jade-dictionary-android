@@ -36,7 +36,7 @@ class WordRepository(private val dao: WordDAO) {
         return dao.searchWordByPinYin(normalizedQuery)
     }
 
-    suspend fun fetchWordById(id: Int): Word? {
+    suspend fun fetchWordById(id: Long): Word? {
         val res = dao.getWordById(id)
         Log.i("worddao", "wordid:$id , word: $res")
         return res

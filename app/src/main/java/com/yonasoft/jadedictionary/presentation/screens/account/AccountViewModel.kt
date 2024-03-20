@@ -12,23 +12,26 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
-import com.yonasoft.jadedictionary.data.respositories.FirebaseRepository
+import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.presentation.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val firebaseRepository: FirebaseRepository,
+    @ApplicationContext private val context: Context,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
 ) :
     ViewModel() {
-    val auth = mutableStateOf(firebaseRepository.getAuth())
-    val authUI = mutableStateOf(firebaseRepository.getAuthUI())
+    val networkAvailable = mutableStateOf(true)
+    val auth = mutableStateOf(firebaseAuthRepository.getAuth())
+    val authUI = mutableStateOf(firebaseAuthRepository.getAuthUI())
     val showForgotPasswordDialog = mutableStateOf(false)
 
     val isEditDisplayName = mutableStateOf(false)
-    val currentUser = mutableStateOf(firebaseRepository.getAuth().currentUser)
+    val currentUser = mutableStateOf(firebaseAuthRepository.getAuth().currentUser)
     val currDisplayName = mutableStateOf(currentUser.value?.displayName ?: "")
     val displayNameField = mutableStateOf(currentUser.value?.displayName ?: "")
     val currentImage = mutableStateOf(currentUser.value?.photoUrl?.toString() ?: "")
@@ -50,7 +53,7 @@ class AccountViewModel @Inject constructor(
     )
 
     init {
-        firebaseRepository.getAuth().addAuthStateListener { auth ->
+        firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
             val user = auth.currentUser
             this.auth.value = auth
             currentUser.value = auth.currentUser
@@ -60,23 +63,22 @@ class AccountViewModel @Inject constructor(
             if (user != null) {
                 Log.d("AuthStateListener", "User logged in: ${user.uid}")
                 // This is a safer place to call your addUserToFirestore method
-                firebaseRepository.addUserToFirestore(user)
+                firebaseAuthRepository.addUserToFirestore(user)
             }
         }
     }
 
     fun updateDisplayInfo(
-        context: Context,
         newDisplayName: String? = displayNameField.value,
         newPhoto: Uri? = selectedImage.value,
         onCheckComplete: (Boolean) -> Unit,
     ) {
         viewModelScope.launch {
-            firebaseRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
+            firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
                 viewModelScope.launch {
                     onCheckComplete(exists)
                     if (!exists) {
-                        firebaseRepository.updateUserDisplayInfo(
+                        firebaseAuthRepository.updateUserDisplayInfo(
                             newDisplayName = newDisplayName,
                             newPhoto = newPhoto,
                         ){
@@ -104,10 +106,10 @@ class AccountViewModel @Inject constructor(
         return null // null indicates no error
     }
 
-    fun savePassword(context: Context) {
+    fun savePassword() {
         passwordError.value = validatePassword(password.value, confirmPassword.value)
         if (passwordError.value == null) {
-            firebaseRepository.updatePassword(password.value) { success, errorMessage ->
+            firebaseAuthRepository.updatePassword(password.value) { success, errorMessage ->
                 if (success) {
                     showToast(context, "Password updated successfully")
                 } else {
@@ -117,13 +119,13 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun forgotPassword(context: Context, email: String) {
+    fun forgotPassword(email: String) {
         if (email.isBlank()) {
             showToast(context, "Please enter your email address.")
             return
         }
 
-        firebaseRepository.sendPasswordResetEmail(email) { success, message ->
+        firebaseAuthRepository.sendPasswordResetEmail(email) { success, message ->
             if (success) {
                 showToast(context, "Reset link sent to your email.")
             } else {
@@ -132,9 +134,9 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun initiateAccountDeletion(context: Context, onComplete: (Boolean, String?) -> Unit) {
+    fun initiateAccountDeletion(onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            val result = firebaseRepository.deleteUserAccount()
+            val result = firebaseAuthRepository.deleteUserAccount()
 
             if (result.isSuccess) {
                 showToast(context, "Account successfully deleted.", Toast.LENGTH_LONG)
@@ -159,7 +161,7 @@ class AccountViewModel @Inject constructor(
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 Log.d("sign_in", "Attempting to add user to Firestore.")
-                firebaseRepository.addUserToFirestore(user)
+                firebaseAuthRepository.addUserToFirestore(user)
             } else {
                 Log.d("sign_in", "User is null after sign in.")
             }
@@ -168,10 +170,12 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun signOut(context: Context) {
+    fun signOut(
+
+    ) {
         viewModelScope.launch {
             try {
-                val success = firebaseRepository.signOut(context) {
+                val success = firebaseAuthRepository.signOut(context) {
                     showToast(context, "Signed out!")
                 }
             } catch (e: Exception) {
@@ -179,5 +183,6 @@ class AccountViewModel @Inject constructor(
             }
         }
     }
+
 }
 
