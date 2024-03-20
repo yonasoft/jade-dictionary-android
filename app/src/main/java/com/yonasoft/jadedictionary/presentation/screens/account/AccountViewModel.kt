@@ -170,6 +170,27 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    fun signInAnonymously() {
+        viewModelScope.launch {
+            try {
+                FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // Sign-in success, update the UI with the signed-in user's information
+                        Log.d("AccountViewModel", "signInAnonymously:success")
+                        currentUser.value = FirebaseAuth.getInstance().currentUser
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w("AccountViewModel", "signInAnonymously:failure", task.exception)
+                        showToast(context, "Authentication failed.")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AccountViewModel", "signInAnonymously:exception", e)
+                showToast(context, "Authentication failed. Exception: ${e.message}")
+            }
+        }
+    }
+
     fun signOut(
 
     ) {

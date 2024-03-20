@@ -1,5 +1,6 @@
 package com.yonasoft.jadedictionary.data.respositories
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yonasoft.jadedictionary.data.models.WordList
@@ -9,11 +10,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 
-class WordListRepository(firestore: FirebaseFirestore, private val userUid: String) {
-
-    private val wordListsCollection = firestore.collection("wordLists")
-
+class WordListRepository(private val firestore: FirebaseFirestore, private val firebaseAuth: FirebaseAuth) {
+    //wordListsCollection must be
     fun getWordLists(): Flow<List<WordList>> = callbackFlow {
+        val wordListsCollection = firestore.collection("wordLists")
+        val userUid: String? = firebaseAuth.currentUser?.uid
         val listenerRegistration = wordListsCollection.whereEqualTo("userUid", userUid)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -28,6 +29,7 @@ class WordListRepository(firestore: FirebaseFirestore, private val userUid: Stri
     }
 
     suspend fun getWordListById(firebaseId: String): WordList? {
+        val wordListsCollection = firestore.collection("wordLists")
         return try {
             val documentSnapshot = wordListsCollection.document(firebaseId).get().await()
             if (documentSnapshot.exists()) {
@@ -41,6 +43,8 @@ class WordListRepository(firestore: FirebaseFirestore, private val userUid: Stri
     }
 
     fun searchWordLists(query: String): Flow<List<WordList>> = callbackFlow {
+        val wordListsCollection = firestore.collection("wordLists")
+        val userUid: String? = firebaseAuth.currentUser?.uid
         val queryLowerCase = query.lowercase()
         val listenerRegistration = wordListsCollection
             .whereEqualTo("userUid", userUid)
@@ -60,6 +64,7 @@ class WordListRepository(firestore: FirebaseFirestore, private val userUid: Stri
     }
 
     suspend fun addOrUpdateWordList(wordList: WordList): WordList {
+        val wordListsCollection = firestore.collection("wordLists")
         val wordListMap = wordList.toMap()
         return if (wordList.firebaseId == null) {
             val addedDocRef = wordListsCollection.add(wordListMap).await()
@@ -73,6 +78,7 @@ class WordListRepository(firestore: FirebaseFirestore, private val userUid: Stri
     }
 
     suspend fun deleteWordList(firebaseId: String?) {
+        val wordListsCollection = firestore.collection("wordLists")
         firebaseId?.let {
             wordListsCollection.document(it).delete().await()
         }

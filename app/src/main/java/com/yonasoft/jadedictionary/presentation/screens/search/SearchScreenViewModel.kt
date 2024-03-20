@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.data.models.WordList
+import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,12 +23,14 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val authRepository: FirebaseAuthRepository,
     private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
 ) :
     ViewModel() {
 
+    val isLoggedIn = mutableStateOf(false)
     val isWordDialogOpen = mutableStateOf(false)
     private val _searchResults = MutableStateFlow<List<Word>>(emptyList())
     private val _history = MutableStateFlow<List<String>>(emptyList())
@@ -37,13 +40,22 @@ class SearchScreenViewModel @Inject constructor(
     val searchResults = _searchResults.asStateFlow()
 
     private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
-    val wordLists= _wordLists.asStateFlow()
+    val wordLists = _wordLists.asStateFlow()
     val selectedWord = mutableStateOf<Word?>(null)
     val showAddToListBottomSheet = mutableStateOf(false)
 
     init {
+
         getHistory()
-        getWordLists()
+        authRepository.getAuth().addAuthStateListener { auth ->
+            isLoggedIn.value = auth.currentUser != null
+            if (isLoggedIn.value) {
+                getWordLists()
+                getHistory()
+            } else {
+                _wordLists.value = emptyList()
+            }
+        }
     }
 
     private fun getHistory() {
@@ -90,9 +102,9 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun addToWordList(wordList: WordList, word:Word){
+    fun addToWordList(wordList: WordList, word: Word) {
         val wordIds = wordList.wordIds
-        if(word.id in wordIds){
+        if (word.id in wordIds) {
             Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT).show()
             return
         }

@@ -38,11 +38,11 @@ import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 @Composable
 fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
 
-    LocalContext.current
     val scope = rememberCoroutineScope()
 
     val query = viewModel.searchQuery
     val active = viewModel.active
+    val isLoggedIn = viewModel.isLoggedIn
     val history = viewModel.history.collectAsState()
     val searchResults = viewModel.searchResults.collectAsState()
     val wordLists = viewModel.wordLists.collectAsState()
@@ -93,29 +93,25 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
                         isWordDialogOpen.value = true
                     },
                     isDialogOpen = isWordDialogOpen,
-                    dropdownMenu = { menuExpanded ->
-                        DropdownMenu(
-                            expanded = menuExpanded.value,
-                            onDismissRequest = { menuExpanded.value = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Add to List") },
-                                onClick = {
-                                    viewModel.selectedWord.value = word
-                                    showAddToListBottomSheet.value = true
-                                    menuExpanded.value = false
-                                },
-                                leadingIcon = {
+                    dropdownMenu = if (isLoggedIn.value) { menuExpanded ->
 
-                                    Icon(
-                                        imageVector = Icons.Filled.List,
-                                        contentDescription = "Add to List",
-                                    )
+                        DropdownMenuItem(
+                            text = { Text("Add to List") },
+                            onClick = {
+                                viewModel.selectedWord.value = word
+                                showAddToListBottomSheet.value = true
+                                menuExpanded.value = false
+                            },
+                            leadingIcon = {
 
-                                }
-                            )
-                        }
-                    }
+                                Icon(
+                                    imageVector = Icons.Filled.List,
+                                    contentDescription = "Add to List",
+                                )
+
+                            }
+                        )
+                    } else null
                 )
                 Divider(color = Color.Black)
             }

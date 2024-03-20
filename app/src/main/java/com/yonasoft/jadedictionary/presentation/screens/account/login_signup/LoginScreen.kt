@@ -64,7 +64,16 @@ fun LoginScreen(
                 textAlign = TextAlign.Center
             )
         }
-        // Forgot Password Button should be outside of the Log In Button
+        // In your LoginScreen Composable function
+        Button(
+            onClick = {
+                // Call the anonymous sign-in function
+                viewModel.signInAnonymously()
+            },
+        ) {
+            Text(text = "Sign In Anonymously")
+        }
+
         Button(onClick = {
             viewModel.showForgotPasswordDialog.value = true
         }) {

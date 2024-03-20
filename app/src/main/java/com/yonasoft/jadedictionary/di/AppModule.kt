@@ -7,7 +7,6 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.memoryCacheSettings
@@ -43,9 +42,9 @@ internal object AppModule {
     @Singleton
     fun provideWordListRepository(
         firestore: FirebaseFirestore,
-        firebaseauth:FirebaseAuth
+        firebaseAuth: FirebaseAuth
     ): WordListRepository {
-        return WordListRepository(firestore = firestore, userUid = firebaseauth.currentUser!!.uid)
+        return WordListRepository(firestore = firestore, firebaseAuth = firebaseAuth)
     }
 
     @Provides
