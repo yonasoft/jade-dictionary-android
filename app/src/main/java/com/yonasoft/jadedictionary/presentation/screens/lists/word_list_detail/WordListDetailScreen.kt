@@ -1,5 +1,6 @@
 package com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,7 +43,8 @@ fun WordListDetailScreen(
     }
 
     LaunchedEffect(key1 = wordListId) {
-        viewModel.fetchWordListById(wordListId)
+        viewModel.initiateWordDetails(wordListId)
+        Log.i("detail word ids", "$words")
     }
 
     Column(
@@ -82,6 +84,7 @@ fun WordListDetailScreen(
                     onClick = {
                         isWordDialogOpen.value = true
                     },
+                    isSortable = true,
                     isDialogOpen = isWordDialogOpen,
                     dropdownMenu = { menuExpanded ->
                         DropdownMenu(
@@ -91,7 +94,8 @@ fun WordListDetailScreen(
                             DropdownMenuItem(
                                 text = { Text("Remove") },
                                 onClick = {
-                                    // Action to add the word to a list
+                                    viewModel.removeWord(word)
+                                    viewModel.fetchWords()
                                     menuExpanded.value = false
                                 },
                                 leadingIcon = {

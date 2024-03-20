@@ -15,10 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -140,8 +143,18 @@ fun ListsScreen(
                     onClick = {
                         navController.navigate(Screen.WordList.createRoute(wordList.localId!!))
                     },
-                    onDelete = {
-                        viewModel.deleteWordList(context = context, wordList = wordList)
+                    dropdownMenu = { menuExpanded ->
+                        DropdownMenu(
+                            expanded = menuExpanded.value,
+                            onDismissRequest = { menuExpanded.value = false }
+                        ) {
+                            DropdownMenuItem(
+                                onClick = { viewModel.deleteWordList(context = context, wordList = wordList); menuExpanded.value = false },
+                                text = { Text("Remove List") },
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Delete List") }
+                            )
+                            // Add more actions as needed
+                        }
                     },
                 )
                 Divider(color = Color.Black)

@@ -37,8 +37,9 @@ class WordRepository(private val dao: WordDAO) {
     }
 
     suspend fun fetchWordById(id: Int): Word? {
-        return dao.getWordById(id)
+        val res = dao.getWordById(id)
+        Log.i("worddao", "wordid:$id , word: $res")
+        return res
     }
-
 
 }

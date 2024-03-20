@@ -42,7 +42,7 @@ class ListsViewModel @Inject constructor(
 
     val editTitle = mutableStateOf("")
     val editDescription = mutableStateOf("")
-    val wordListDetail = mutableStateOf<WordList?>(null)
+    private val wordListDetail = mutableStateOf<WordList?>(null)
     private val _wordListWords = MutableStateFlow<List<Word>>(emptyList())
     val wordListWords = _wordListWords.asStateFlow()
 
@@ -120,16 +120,6 @@ class ListsViewModel @Inject constructor(
         }
     }
 
-    private fun fetchWords() {
-        viewModelScope.launch {
-            val wordIds = wordListDetail.value?.wordIds ?: emptyList()
-            val words = wordIds.mapNotNull { id ->
-                wordRepository.fetchWordById(id)
-            }
-            _wordListWords.value = words
-        }
-    }
-
     fun saveWordList() {
         viewModelScope.launch {
             val newWordList = wordListDetail.value!!.copy(
@@ -140,7 +130,23 @@ class ListsViewModel @Inject constructor(
             wordListRepository.updateWordList(newWordList)
         }
     }
-    fun fetchWordListById(wordListId: Int) {
+
+    fun removeWord(word: Word) {
+        viewModelScope.launch {
+            val newWordIds = wordListDetail.value?.wordIds?.toMutableList() ?: mutableListOf()
+            newWordIds.remove(word.id)
+
+            wordListDetail.value = wordListDetail.value?.copy(
+                wordIds = newWordIds,
+                lastUpdatedAt = Date()
+            )?.also { updatedList ->
+                wordListRepository.updateWordList(updatedList)
+                fetchWords() // Refetch words to update UI
+            }
+        }
+    }
+
+    fun initiateWordDetails(wordListId: Int) {
         viewModelScope.launch {
             val wordList = wordListRepository.getWordListByLocalId(wordListId)
             Log.d("WordListDetail", "Fetched word list: $wordList")
@@ -149,6 +155,17 @@ class ListsViewModel @Inject constructor(
                 editTitle.value = wordList.title
                 editDescription.value = wordList.description ?: ""
             }
+            fetchWords()
+        }
+    }
+
+    fun fetchWords() {
+        viewModelScope.launch {
+            val wordIds = wordListDetail.value?.wordIds
+            val words = wordIds!!.mapNotNull { id ->
+                wordRepository.fetchWordById(id)
+            }
+            _wordListWords.value = words
         }
     }
 }
