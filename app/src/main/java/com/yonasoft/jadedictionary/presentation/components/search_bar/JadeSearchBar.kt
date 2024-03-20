@@ -23,6 +23,7 @@ fun JadeSearchBar(
     onSearch: (query: String) -> Unit,
     changeQuery: (query: String) -> Unit,
     changeActive: (iSActive: Boolean) -> Unit,
+
     content: @Composable() (ColumnScope.() -> Unit),
 ) {
     SearchBar(
@@ -47,10 +48,14 @@ fun JadeSearchBar(
         trailingIcon = {
             Icon(
                 modifier = Modifier.clickable {
-                    if (query.value.isEmpty()) {
-                        changeActive(false)
-                    }
                     changeQuery("")
+                    if(active.value) {
+                        if (query.value.isEmpty()) {
+                            changeActive(false)
+                        }
+                    } else{
+                        onSearch("")
+                    }
                 }, imageVector = Icons.Default.Close, contentDescription = "Close Icon"
             )
 

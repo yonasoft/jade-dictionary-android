@@ -62,11 +62,13 @@ fun WordListRow(
                 overflow = TextOverflow.Ellipsis // Adds ellipsis for overflow
             )
         }
-        if (dropdownMenu != null && menuExpanded) {
+        if (dropdownMenu != null) {
             IconButton(
                 onClick = { menuExpanded = true }) {
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
-                dropdownMenu(remember { mutableStateOf(menuExpanded) })
+                if(menuExpanded) {
+                    dropdownMenu(remember { mutableStateOf(menuExpanded) })
+                }
             }
         }
     }

@@ -1,8 +1,6 @@
 package com.yonasoft.jadedictionary.data.respositories
 
 import com.yonasoft.jadedictionary.data.db.WordListDAO
-import com.yonasoft.jadedictionary.data.db.word.WordDAO
-import com.yonasoft.jadedictionary.data.db.wordlist.WordListDatabase
 import com.yonasoft.jadedictionary.data.models.WordList
 import kotlinx.coroutines.flow.Flow
 
@@ -17,4 +15,6 @@ class WordListRepository(private val dao: WordListDAO) {
     suspend fun deleteWordList(wordList: WordList) = dao.deleteWordList(wordList)
 
     suspend fun getWordListByLocalId(id: Int): WordList? = dao.getWordListById(id)
+
+    suspend fun  searchWordList(searchQuery: String): Flow<List<WordList>> = dao.searchWordListsByTitleOrDescription(searchQuery)
 }

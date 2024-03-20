@@ -75,6 +75,10 @@ fun ListsScreen(
             query = query,
             active = isActive,
             onSearch = {
+                viewModel.searchWordList(it)
+                viewModel.addToHistory(it)
+                query.value = ""
+                isActive.value = false
             },
             changeQuery = {
                 query.value = it

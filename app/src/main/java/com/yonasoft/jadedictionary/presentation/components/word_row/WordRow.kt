@@ -39,7 +39,7 @@ fun WordRow(
     onClick: () -> Unit,
     isSortable: Boolean = false,
     isDialogOpen: MutableState<Boolean>?,
-    dropdownMenu: (@Composable (menuExpanded:MutableState<Boolean>) -> Unit)?
+    dropdownMenu: (@Composable (menuExpanded: MutableState<Boolean>) -> Unit)?
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -58,7 +58,7 @@ fun WordRow(
         // Make the entire row clickable to show the word detail
     ) {
 
-        if(isSortable) {
+        if (isSortable) {
             IconButton(
                 onClick = { menuExpanded = true },
                 modifier = Modifier.align(Alignment.CenterVertically)
@@ -110,16 +110,18 @@ fun WordRow(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        IconButton(
-            onClick = { menuExpanded = true },
-            modifier = Modifier.align(Alignment.CenterVertically)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = "More Options"
-            )
-            if (dropdownMenu!=null && menuExpanded){
-                dropdownMenu(remember{mutableStateOf(menuExpanded)})
+        if (dropdownMenu != null) {
+            IconButton(
+                onClick = { menuExpanded = true },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "More Options"
+                )
+                if (menuExpanded) {
+                    dropdownMenu(remember { mutableStateOf(menuExpanded) })
+                }
             }
         }
     }

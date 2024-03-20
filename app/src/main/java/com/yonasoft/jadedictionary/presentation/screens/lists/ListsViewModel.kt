@@ -58,6 +58,16 @@ class ListsViewModel @Inject constructor(
         }
     }
 
+    fun addToHistory(searchQuery: String = query.value) {
+        viewModelScope.launch {
+            val newHistory = mutableListOf<String>()
+            newHistory.addAll(history.value)
+            newHistory.add(0, searchQuery)
+            _history.value = newHistory
+            storeSearchHistory.storeSearchHistory(newHistory)
+        }
+    }
+
     fun removeFromHistory(index: Int) {
         viewModelScope.launch {
             val newHistory = mutableListOf<String>()
@@ -92,6 +102,14 @@ class ListsViewModel @Inject constructor(
             }
         }
     }
+    fun searchWordList(searchQuery:String = query.value){
+        viewModelScope.launch {
+            wordListRepository.searchWordList(searchQuery).collect{
+                _wordLists.value = it
+            }
+        }
+    }
+
 
     fun addWordList(
         context: Context,
