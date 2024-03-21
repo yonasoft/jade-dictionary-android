@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.yonasoft.jadedictionary.data.constants.Screen
-import com.yonasoft.jadedictionary.data.enums.SortOption
+import com.yonasoft.jadedictionary.data.constants.SortOption
 import com.yonasoft.jadedictionary.presentation.components.history_row.HistoryRow
 import com.yonasoft.jadedictionary.presentation.components.search_bar.JadeSearchBar
 import com.yonasoft.jadedictionary.presentation.components.word_list_row.WordListRow

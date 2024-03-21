@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.data.enums
+package com.yonasoft.jadedictionary.data.constants
 
 import java.util.Locale
 

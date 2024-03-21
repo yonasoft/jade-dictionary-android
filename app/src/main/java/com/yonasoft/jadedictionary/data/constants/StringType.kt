@@ -1,9 +1,9 @@
 package com.yonasoft.jadedictionary.data.constants
 
-sealed class StringType {
-    data object Hanzi : StringType()
-    data object Pinyin : StringType()
-    data object English : StringType()
+sealed class StringType(val name:String) {
+    data object Hanzi : StringType(name = "Hanzi")
+    data object Pinyin : StringType(name = "Pinyin")
+    data object English : StringType(name = "Definition")
 }
 
 

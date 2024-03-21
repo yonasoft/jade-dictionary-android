@@ -12,6 +12,7 @@ import com.yonasoft.jadedictionary.presentation.screens.account.AccountScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.ListsScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.add_word_list_screen.AddWordListScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail.WordListDetailScreen
+import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeScreen
 import com.yonasoft.jadedictionary.presentation.screens.search.SearchScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,7 +38,9 @@ fun SetupNavigation(navController: NavHostController){
             val wordListId = backStackEntry.arguments?.getString("wordListId") ?: 0 // Provide default value or handle error
             WordListDetailScreen(navController = navController, wordListId = wordListId.toString())
         }
-
+        composable(Screen.Practice.route){
+           PracticeScreen(navController = navController)
+        }
         composable(Screen.Account.route){
             AccountScreen(navController = navController)
         }

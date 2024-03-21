@@ -22,19 +22,19 @@ fun NavItems(): List<NavigationItem> {
     return listOf(
         NavigationItem(
             title = "Search",
-            destination="search",
+            destination=Screen.Search.route,
             selectedIcon = Icons.Filled.Search,
             unselectedIcon = Icons.Outlined.Search,
         ),
         NavigationItem(
             title = "Lists",
-            destination = "lists",
+            destination = Screen.Lists.route,
             selectedIcon = Icons.Filled.List,
             unselectedIcon = Icons.Outlined.List,
         ),
         NavigationItem(
             title = "Practice",
-            destination = "practice",
+            destination = Screen.Practice.route,
             selectedIcon = ImageVector.vectorResource(R.drawable.baseline_gamepad_24),
             unselectedIcon = ImageVector.vectorResource(R.drawable.outline_gamepad_24),
         ),
