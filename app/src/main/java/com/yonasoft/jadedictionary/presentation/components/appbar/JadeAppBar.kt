@@ -4,6 +4,7 @@ package com.yonasoft.jadedictionary.presentation.components.appbar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,10 +33,13 @@ import kotlinx.coroutines.launch
 fun JadeAppBar(scope: CoroutineScope, drawerState: DrawerState, navController: NavController) {
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val canNavigateUp = currentBackStackEntry != null && navController.previousBackStackEntry != null
+    val canNavigateUp =
+        currentBackStackEntry != null && navController.previousBackStackEntry != null
 
     CenterAlignedTopAppBar(
-        modifier = Modifier.shadow(12.dp),
+
+        modifier = Modifier
+            .shadow(8.dp),
         title = {
             Image(
                 painter = rememberAsyncImagePainter(R.drawable.jade_logo),

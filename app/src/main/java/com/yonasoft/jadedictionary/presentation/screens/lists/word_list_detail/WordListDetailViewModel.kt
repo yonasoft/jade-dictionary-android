@@ -9,7 +9,6 @@ import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -44,11 +43,11 @@ class WordListDetailViewModel @Inject constructor(
 
     fun initiateWordDetails(wordListId: String) {
         viewModelScope.launch {
-            Log.i("ids", "$wordListId")
+            Log.i("ids", wordListId)
             val wordList = wordListRepository.getWordListById(wordListId)
             if(wordList!=null) {
                 wordListDetail.value = wordList
-                editTitle.value = wordList!!.title
+                editTitle.value = wordList.title
                 editDescription.value = wordList.description ?: ""
                 fetchWords()
             }
@@ -57,8 +56,10 @@ class WordListDetailViewModel @Inject constructor(
 
     fun fetchWords(wordIds:List<Long> = wordListDetail.value?.wordIds?: emptyList()) {
         viewModelScope.launch {
-            val words = wordIds!!.mapNotNull { id ->
-                wordRepository.fetchWordById(id)
+            val words = mutableListOf<Word>()
+            wordIds.forEach {
+                val word = wordRepository.fetchWordById(it)
+                words.add(word!!)
             }
             _wordListWords.value = words
         }

@@ -180,18 +180,20 @@ fun QuizTypeSelector(sharedViewModel: PracticeSharedViewModel) {
             .padding(8.dp),
         horizontalArrangement = Arrangement.Start
     ) {
-        quizTypes.forEach { quizType ->
-            val isSelected = sharedViewModel.quizType.value.contains(quizType)
-            Chip(
-                label = "${quizType.stringType1.name} <-> ${quizType.stringType2.name}",
-                isSelected = isSelected,
-                onSelectionChanged = { selected ->
-                    val currentSelection = sharedViewModel.quizType.value.toMutableSet()
-                    if (selected) currentSelection.add(quizType)
-                    else currentSelection.remove(quizType)
-                    sharedViewModel.quizType.value = currentSelection
-                },
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            quizTypes.forEach { quizType ->
+                val isSelected = sharedViewModel.quizType.value.contains(quizType)
+                Chip(
+                    label = "${quizType.stringType1.name} <-> ${quizType.stringType2.name}",
+                    isSelected = isSelected,
+                    onSelectionChanged = { selected ->
+                        val currentSelection = sharedViewModel.quizType.value.toMutableSet()
+                        if (selected) currentSelection.add(quizType)
+                        else currentSelection.remove(quizType)
+                        sharedViewModel.quizType.value = currentSelection
+                    },
+                )
+            }
         }
     }
 }

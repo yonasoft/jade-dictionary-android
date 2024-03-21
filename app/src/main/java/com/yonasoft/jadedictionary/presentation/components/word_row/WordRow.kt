@@ -37,7 +37,8 @@ fun WordRow(
     word: Word,
     onClick: () -> Unit,
     isDialogOpen: MutableState<Boolean>?,
-    dropdownMenu: (@Composable (menuExpanded: MutableState<Boolean>) -> Unit)?
+
+    dropdownMenu: (@Composable (menuExpanded: Boolean, setMenuExpanded: (value:Boolean) -> Unit) -> Unit)?
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -106,7 +107,9 @@ fun WordRow(
                     contentDescription = "More Options"
                 )
                 if (menuExpanded) {
-                    dropdownMenu(remember { mutableStateOf(menuExpanded) })
+                    dropdownMenu(menuExpanded){
+                        menuExpanded = it
+                    }
                 }
             }
         }

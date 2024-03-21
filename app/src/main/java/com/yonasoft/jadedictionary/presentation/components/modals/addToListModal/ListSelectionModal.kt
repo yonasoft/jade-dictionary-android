@@ -26,14 +26,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddToListModal(
+fun ListSelectionModal(
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
     scope: CoroutineScope,
     wordLists: State<List<WordList>>,
     onClick: (wordList:WordList) -> Unit,
 ) {
-
     ModalBottomSheet(
         sheetState = sheetState,
         shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
@@ -45,11 +44,18 @@ fun AddToListModal(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                "Add to List",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+
+            Button(
+                modifier = Modifier.padding(vertical = 8.dp)
+                ,onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet.value = false
+                    }
+                }
+            }) {
+                Text("Hide")
+            }
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(
                     wordLists.value.size
@@ -63,15 +69,6 @@ fun AddToListModal(
                     )
                     Divider(color = Color.Black)
                 }
-            }
-            Button(onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet.value = false
-                    }
-                }
-            }) {
-                Text("Hide")
             }
         }
     }

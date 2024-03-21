@@ -30,7 +30,7 @@ import com.yonasoft.jadedictionary.data.models.WordList
 fun WordListRow(
     wordList: WordList,
     onClick: () -> Unit,
-    dropdownMenu: (@Composable (menuExpanded: MutableState<Boolean>) -> Unit)? = null,
+    dropdownMenu: (@Composable (menuExpanded: Boolean, setMenuExpanded: (value:Boolean) -> Unit) -> Unit)? = null,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -66,8 +66,10 @@ fun WordListRow(
             IconButton(
                 onClick = { menuExpanded = true }) {
                 Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
-                if(menuExpanded) {
-                    dropdownMenu(remember { mutableStateOf(menuExpanded) })
+                if (menuExpanded) {
+                    dropdownMenu(menuExpanded){
+                        menuExpanded = it
+                    }
                 }
             }
         }

@@ -83,16 +83,16 @@ fun WordListDetailScreen(
                         isWordDialogOpen.value = true
                     },
                     isDialogOpen = isWordDialogOpen,
-                    dropdownMenu = { menuExpanded ->
+                    dropdownMenu = { menuExpanded, setMenuExpanded ->
                         DropdownMenu(
-                            expanded = menuExpanded.value,
-                            onDismissRequest = { menuExpanded.value = false }
+                            expanded = menuExpanded,
+                            onDismissRequest = { setMenuExpanded(false) }
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Remove") },
                                 onClick = {
                                     viewModel.removeWord(word)
-                                    menuExpanded.value = false
+                                    setMenuExpanded(false)
                                 },
                                 leadingIcon = {
                                     Icon(

@@ -25,11 +25,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yonasoft.jadedictionary.presentation.components.history_row.HistoryRow
-import com.yonasoft.jadedictionary.presentation.components.modals.addToListModal.AddToListModal
+import com.yonasoft.jadedictionary.presentation.components.modals.addToListModal.ListSelectionModal
 import com.yonasoft.jadedictionary.presentation.components.search_bar.JadeSearchBar
 import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 
@@ -93,24 +92,27 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
                         isWordDialogOpen.value = true
                     },
                     isDialogOpen = isWordDialogOpen,
-                    dropdownMenu = if (isLoggedIn.value) { menuExpanded ->
+                    dropdownMenu = if (isLoggedIn.value) { menuExpanded, setMenuExpanded ->
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { setMenuExpanded(false) }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Add to List") },
+                                onClick = {
+                                    viewModel.selectedWord.value = word
+                                    showAddToListBottomSheet.value = true
+                                    setMenuExpanded(false)
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.List,
+                                        contentDescription = "Add to List",
+                                    )
 
-                        DropdownMenuItem(
-                            text = { Text("Add to List") },
-                            onClick = {
-                                viewModel.selectedWord.value = word
-                                showAddToListBottomSheet.value = true
-                                menuExpanded.value = false
-                            },
-                            leadingIcon = {
-
-                                Icon(
-                                    imageVector = Icons.Filled.List,
-                                    contentDescription = "Add to List",
-                                )
-
-                            }
-                        )
+                                }
+                            )
+                        }
                     } else null
                 )
                 Divider(color = Color.Black)
@@ -118,7 +120,7 @@ fun SearchScreen(viewModel: SearchScreenViewModel = hiltViewModel()) {
         }
     }
     if (showAddToListBottomSheet.value) {
-        AddToListModal(
+        ListSelectionModal(
             sheetState = sheetState,
             showBottomSheet = showAddToListBottomSheet,
             scope = scope,

@@ -124,7 +124,7 @@ fun ListsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 8.dp)
             ) {
                 OutlinedButton(
                     modifier = Modifier
@@ -178,17 +178,17 @@ fun ListsScreen(
                             Log.i("ids", "Id before nav ${wordList.firebaseId}")
                             navController.navigate(Screen.WordList.createRoute(wordList.firebaseId!!))
                         },
-                        dropdownMenu = { menuExpanded ->
+                        dropdownMenu = { menuExpanded, setMenuExpanded ->
                             DropdownMenu(
-                                expanded = menuExpanded.value,
-                                onDismissRequest = { menuExpanded.value = false }
+                                expanded = menuExpanded,
+                                onDismissRequest = { setMenuExpanded(false) }
                             ) {
                                 DropdownMenuItem(
                                     onClick = {
                                         viewModel.deleteWordList(
                                             context = context,
                                             wordList = wordList
-                                        ); menuExpanded.value = false
+                                        ); setMenuExpanded(false)
                                     },
                                     text = { Text("Remove List") },
                                     leadingIcon = {

@@ -28,18 +28,19 @@ class ListsViewModel @Inject constructor(
     private val storeSearchHistory: StoreSearchHistory,
 ) :
     ViewModel() {
+    val query = mutableStateOf("")
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    val query = mutableStateOf("")
     val isActive = mutableStateOf(false)
     val isSyncing = mutableStateOf(false)
-
     var showBottomSheet = mutableStateOf(false)
+
     val currentSortMethod = mutableStateOf(SortOption.DATE_RECENT)
     val addTitle = mutableStateOf("")
     val addDescription = mutableStateOf("")
+
     private val _history = MutableStateFlow<List<String>>(emptyList())
     val history = _history.asStateFlow()
     private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
