@@ -22,7 +22,7 @@ import javax.inject.Inject
 class PracticeSharedViewModel @Inject constructor(
     private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
-    private val firebaseAuthRepository: FirebaseAuthRepository,
+    firebaseAuthRepository: FirebaseAuthRepository,
 ) : ViewModel() {
 
     val modes = listOf(PracticeMode.FlashCards, PracticeMode.MultipleChoice)
@@ -51,7 +51,6 @@ class PracticeSharedViewModel @Inject constructor(
             if (_isLoggedIn.value) {
                 getAllWordList()
             } else {
-                // User is not logged in, clear sensitive data or adjust UI accordingly
                 _wordLists.value = emptyList()
             }
         }
@@ -118,13 +117,13 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private suspend fun fetchFromListWordIds(words: List<Long>): List<Word> {
-        var res = mutableListOf<Word>()
-            words.forEach {
-                if (it !in wordIds.value) {
-                    val word = wordRepository.fetchWordById(it)!!
-                    res.add(word)
-                }
+        val res = mutableListOf<Word>()
+        words.forEach {
+            if (it !in wordIds.value) {
+                val word = wordRepository.fetchWordById(it)!!
+                res.add(word)
             }
+        }
         return res
     }
 
