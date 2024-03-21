@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,7 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.yonasoft.jadedictionary.presentation.components.modals.addToListModal.ListSelectionModal
+import com.yonasoft.jadedictionary.presentation.components.modals.ListSelectionModal
+import com.yonasoft.jadedictionary.presentation.components.modals.WordSelectionModal
 import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeSharedViewModel
 
@@ -53,15 +53,23 @@ fun PracticeWordSelect(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val query = sharedViewModel.wordSearchQuery
+    val active = sharedViewModel.queryActive
+    val searchResults = sharedViewModel.searchResults
+
     val words = sharedViewModel.practiceWords
     val isLoggedIn = sharedViewModel.isLoggedIn.collectAsState()
     val wordLists = sharedViewModel.wordLists.collectAsState()
 
-    val sheetState = rememberModalBottomSheetState()
+    val wordListSheetState = rememberModalBottomSheetState()
+    val wordsSheetShape = rememberModalBottomSheetState()
     val isWordDialogOpen = remember {
         mutableStateOf(false)
     }
     val showListSelectionModal = remember {
+        mutableStateOf(false)
+    }
+    val showWordSelectionModal = remember {
         mutableStateOf(false)
     }
 
@@ -84,7 +92,9 @@ fun PracticeWordSelect(
             ) {
                 OutlinedButton(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = { /*TODO*/ }) {
+                    onClick = {
+                        showWordSelectionModal.value = true
+                    }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
                     Text(text = "Search")
                 }
@@ -97,10 +107,7 @@ fun PracticeWordSelect(
                             Toast.makeText(context, "You need to be logged in to add from the list", Toast.LENGTH_LONG).show()
                         }
                     },
-                    enabled = isLoggedIn.value,  // Disable button based on login state
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (!isLoggedIn.value) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) else MaterialTheme.colorScheme.primary
-                    )
+                    enabled = isLoggedIn.value,
                 ) {
                     Icon(imageVector = Icons.Default.List, contentDescription = "List Icon")
                     Text(text = "Add from list")
@@ -175,12 +182,28 @@ fun PracticeWordSelect(
     }
     if (showListSelectionModal.value) {
         ListSelectionModal(
-            sheetState = sheetState,
+            sheetState = wordListSheetState,
             showBottomSheet = showListSelectionModal,
             scope = scope,
             wordLists = wordLists,
             onClick = {
                 sharedViewModel.addFromWordList(it)
+                showListSelectionModal.value = false
             })
+    }
+    if(showWordSelectionModal.value){
+        WordSelectionModal(
+            sheetState = wordsSheetShape,
+            showBottomSheet = showWordSelectionModal,
+            scope = scope,
+            query = query,
+            active = active,
+            onSearch = {sharedViewModel.onSearchWord(it)},
+            words = searchResults,
+            onClick = {
+                sharedViewModel.addWord(it)
+                showWordSelectionModal.value = false
+            }
+        )
     }
 }

@@ -34,7 +34,10 @@ class PracticeSharedViewModel @Inject constructor(
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
     val wordSearchQuery = mutableStateOf("")
+    val queryActive = mutableStateOf(false)
+    val searchResults = mutableStateOf<List<Word>>(emptyList())
 
     private val _wordLists = MutableStateFlow<List<WordList>>(emptyList())
     val wordLists = _wordLists.asStateFlow()
@@ -75,8 +78,8 @@ class PracticeSharedViewModel @Inject constructor(
         if (word.id in wordIds.value) return
         viewModelScope.launch {
             val newWordIds = mutableSetOf<Long>()
-
             val newPracticeWords = mutableListOf<Word>()
+
             newWordIds.addAll(wordIds.value)
             newPracticeWords.addAll(practiceWords.value)
 
@@ -115,8 +118,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private suspend fun fetchFromListWordIds(words: List<Long>): List<Word> {
-        val res = mutableListOf<Word>()
-
+        var res = mutableListOf<Word>()
             words.forEach {
                 if (it !in wordIds.value) {
                     val word = wordRepository.fetchWordById(it)!!
@@ -124,5 +126,13 @@ class PracticeSharedViewModel @Inject constructor(
                 }
             }
         return res
+    }
+
+    fun onSearchWord(query: String = wordSearchQuery.value) {
+        viewModelScope.launch {
+            wordRepository.searchWord(query).collect { words ->
+                searchResults.value = words
+            }
+        }
     }
 }

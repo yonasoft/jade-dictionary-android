@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.presentation.components.modals.addToListModal
+package com.yonasoft.jadedictionary.presentation.components.modals
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,19 +19,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.yonasoft.jadedictionary.data.models.WordList
-import com.yonasoft.jadedictionary.presentation.components.word_list_row.WordListRow
+import com.yonasoft.jadedictionary.data.models.Word
+import com.yonasoft.jadedictionary.presentation.components.search_bar.JadeSearchBar
+import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListSelectionModal(
+fun WordSelectionModal(
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
     scope: CoroutineScope,
-    wordLists: State<List<WordList>>,
-    onClick: (wordList:WordList) -> Unit,
+    query: MutableState<String>,
+    active: MutableState<Boolean>,
+    onSearch: (text: String) -> Unit,
+    words: State<List<Word>>,
+    onClick: (word: Word) -> Unit,
 ) {
     ModalBottomSheet(
         sheetState = sheetState,
@@ -44,28 +48,39 @@ fun ListSelectionModal(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
-            Button(
-                modifier = Modifier.padding(vertical = 8.dp)
-                ,onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet.value = false
-                    }
-                }
+            JadeSearchBar(query = query, active = active, onSearch = {
+                onSearch(it)
+                query.value = ""
+                active.value = false
+            }, changeQuery = {
+                query.value = it
+            }, changeActive = {
+                active.value = it
             }) {
+
+            }
+            Button(
+                modifier = Modifier.padding(vertical = 8.dp), onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet.value = false
+                        }
+                    }
+                }) {
                 Text("Hide")
             }
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(
-                    wordLists.value.size
+                    words.value.size
                 ) {
-                    val wordList = wordLists.value[it]
-                    WordListRow(
-                        wordList = wordList,
+                    val word = words.value[it]
+                    WordRow(
+                        word = word,
                         onClick = {
-                            onClick(wordList)
+                            onClick(word)
                         },
+                        dropdownMenu = null,
+                        isDialogOpen = null,
                     )
                     Divider(color = Color.Black)
                 }

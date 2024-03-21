@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yonasoft.jadedictionary.presentation.components.history_row.HistoryRow
-import com.yonasoft.jadedictionary.presentation.components.modals.addToListModal.ListSelectionModal
+import com.yonasoft.jadedictionary.presentation.components.modals.ListSelectionModal
 import com.yonasoft.jadedictionary.presentation.components.search_bar.JadeSearchBar
 import com.yonasoft.jadedictionary.presentation.components.word_row.WordRow
 
