@@ -240,7 +240,7 @@ fun TimerDropdownSelector(sharedViewModel: PracticeSharedViewModel) {
         TimerDuration.ThirtySeconds,
         TimerDuration.OneMinute,
     )
-    val selectedDuration = sharedViewModel.timer.value
+    val selectedDuration = sharedViewModel.timerDuration.value
 
     Box(
         modifier = Modifier
@@ -264,7 +264,7 @@ fun TimerDropdownSelector(sharedViewModel: PracticeSharedViewModel) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     onClick = {
-                        sharedViewModel.timer.value = duration
+                        sharedViewModel.timerDuration.value = duration
                         expanded = false
                     }
                 )
@@ -276,10 +276,9 @@ fun TimerDropdownSelector(sharedViewModel: PracticeSharedViewModel) {
 @Composable
 fun StopwatchToggle(sharedViewModel: PracticeSharedViewModel) {
     Row(modifier = Modifier.padding(16.dp)) {
-
         Switch(
-            checked = sharedViewModel.stopwatch.value,
-            onCheckedChange = { sharedViewModel.stopwatch.value = it }
+            checked = sharedViewModel.isStopwatch.value,
+            onCheckedChange = { sharedViewModel.isStopwatch.value = it }
         )
     }
 }

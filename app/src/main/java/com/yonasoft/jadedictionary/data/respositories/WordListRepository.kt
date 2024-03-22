@@ -10,25 +10,32 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 
-class WordListRepository(private val firestore: FirebaseFirestore, private val firebaseAuth: FirebaseAuth) {
-    //wordListsCollection must be
-    fun getWordLists(): Flow<List<WordList>> = callbackFlow {
-        val wordListsCollection = firestore.collection("wordLists")
-        val userUid: String? = firebaseAuth.currentUser?.uid
-        val listenerRegistration = wordListsCollection.whereEqualTo("userUid", userUid)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val wordLists = snapshot?.documents?.mapNotNull { documentToWordList(it) }.orEmpty()
-                trySend(wordLists)
-            }
+class WordListRepository(
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth
+) {
 
-        awaitClose { listenerRegistration.remove() }
+    fun getWordLists(): Flow<List<WordList>> = callbackFlow {
+        if (firebaseAuth.currentUser != null) {
+            val wordListsCollection = firestore.collection("wordLists")
+            val userUid: String? = firebaseAuth.currentUser?.uid
+            val listenerRegistration = wordListsCollection.whereEqualTo("userUid", userUid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
+                    val wordLists =
+                        snapshot?.documents?.mapNotNull { documentToWordList(it) }.orEmpty()
+                    trySend(wordLists)
+                }
+
+            awaitClose { listenerRegistration.remove() }
+        }
     }
 
     suspend fun getWordListById(firebaseId: String): WordList? {
+
         val wordListsCollection = firestore.collection("wordLists")
         return try {
             val documentSnapshot = wordListsCollection.document(firebaseId).get().await()

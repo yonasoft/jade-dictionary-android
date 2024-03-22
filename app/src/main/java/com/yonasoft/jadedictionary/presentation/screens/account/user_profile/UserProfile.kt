@@ -109,7 +109,7 @@ fun UserProfile(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        if (!auth.value.currentUser!!.isAnonymous) {
+        if (!auth.value!!.currentUser!!.isAnonymous) {
             PasswordSettingCard(
                 password = password.value,
                 confirmPassword = confirmPassword.value,

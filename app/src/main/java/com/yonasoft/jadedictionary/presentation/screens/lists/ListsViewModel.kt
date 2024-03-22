@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.constants.SortOption
+import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
 import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
@@ -50,21 +50,22 @@ class ListsViewModel @Inject constructor(
     init {
         getHistory()
         firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
-            _isLoggedIn.value = auth.currentUser != null
-            if (_isLoggedIn.value) {
-                // User is logged in, perform actions that require authentication
-                getAllWordList()
-            } else {
-                // User is not logged in, clear sensitive data or adjust UI accordingly
-                _wordLists.value = emptyList()
-                _history.value = emptyList()
+            viewModelScope.launch {
+                _isLoggedIn.value = auth.currentUser != null
+                if (_isLoggedIn.value) {
+                    // User is logged in, perform actions that require authentication
+                    getAllWordList()
+                } else {
+                    // User is not logged in, clear sensitive data or adjust UI accordingly
+                    _wordLists.value = emptyList()
+                    _history.value = emptyList()
+                }
             }
         }
     }
 
     private fun getHistory() {
         viewModelScope.launch {
-            // Assuming getSearchHistorySync() is adapted to be suspend and returns a List<String>
             _history.value = storeSearchHistory.getSearchHistorySync()
         }
     }
@@ -115,6 +116,7 @@ class ListsViewModel @Inject constructor(
             }
         }
     }
+
     fun searchWordLists(searchQuery: String) {
         viewModelScope.launch {
             // Assuming getAllWordLists() can handle search queries or replace with appropriate search function
@@ -147,7 +149,8 @@ class ListsViewModel @Inject constructor(
         if (_isLoggedIn.value) {
             viewModelScope.launch {
                 wordListRepository.deleteWordList(wordList.firebaseId)
-                Toast.makeText(context, "Word List: ${wordList.title} removed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Word List: ${wordList.title} removed", Toast.LENGTH_SHORT)
+                    .show()
             }
         } else {
             Log.d("ListsViewModel", "User must be logged in to delete a word list.")

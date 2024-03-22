@@ -16,8 +16,6 @@ fun AccountScreen(
     navController: NavController,
     viewModel: AccountViewModel = hiltViewModel(),
 ) {
-    val currentUser = viewModel.currentUser
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (!viewModel.networkAvailable.value) {

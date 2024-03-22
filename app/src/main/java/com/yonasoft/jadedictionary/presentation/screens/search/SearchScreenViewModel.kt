@@ -45,22 +45,22 @@ class SearchScreenViewModel @Inject constructor(
     val showAddToListBottomSheet = mutableStateOf(false)
 
     init {
-
         getHistory()
         authRepository.getAuth().addAuthStateListener { auth ->
-            isLoggedIn.value = auth.currentUser != null
-            if (isLoggedIn.value) {
-                getWordLists()
-                getHistory()
-            } else {
-                _wordLists.value = emptyList()
+            viewModelScope.launch {
+                isLoggedIn.value = auth.currentUser != null
+                if (auth.currentUser != null) {
+                    getWordLists()
+                    getHistory()
+                } else {
+                    _wordLists.value = emptyList()
+                }
             }
         }
     }
 
     private fun getHistory() {
         viewModelScope.launch {
-            // Assuming getSearchHistorySync() is adapted to be suspend and returns a List<String>
             _history.value = storeSearchHistory.getSearchHistorySync()
         }
     }
@@ -95,6 +95,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     private fun getWordLists() {
+        if (authRepository.getAuth().currentUser == null) return
         viewModelScope.launch {
             wordListRepository.getWordLists().collect {
                 _wordLists.value = it

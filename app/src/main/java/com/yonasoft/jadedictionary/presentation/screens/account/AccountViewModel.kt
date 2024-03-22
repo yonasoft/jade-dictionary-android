@@ -26,7 +26,7 @@ class AccountViewModel @Inject constructor(
 ) :
     ViewModel() {
     val networkAvailable = mutableStateOf(true)
-    val auth = mutableStateOf(firebaseAuthRepository.getAuth())
+    val auth = mutableStateOf<FirebaseAuth?>(null)
     val authUI = mutableStateOf(firebaseAuthRepository.getAuthUI())
     val showForgotPasswordDialog = mutableStateOf(false)
 
@@ -53,17 +53,20 @@ class AccountViewModel @Inject constructor(
     )
 
     init {
-        firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
-            val user = auth.currentUser
-            this.auth.value = auth
-            currentUser.value = auth.currentUser
-            Log.d("AuthStateListener", "Auth state changed. User: ${auth.currentUser?.uid}")
-            currDisplayName.value = auth.currentUser?.displayName ?: ""
-            currentImage.value = auth.currentUser?.photoUrl?.toString() ?: ""
-            if (user != null) {
-                Log.d("AuthStateListener", "User logged in: ${user.uid}")
-                // This is a safer place to call your addUserToFirestore method
-                firebaseAuthRepository.addUserToFirestore(user)
+        firebaseAuthRepository.getAuth().addAuthStateListener {
+            viewModelScope.launch {
+                val user = it.currentUser
+                if (user != null) {
+                    auth.value = it
+                    currentUser.value = user
+                    Log.d("AuthStateListener", "Auth state changed. User: ${user?.uid}")
+                    currDisplayName.value = user?.displayName ?: ""
+                    currentImage.value = user?.photoUrl?.toString() ?: ""
+                    Log.d("AuthStateListener", "User logged in: ${user.uid}")
+                    // Safely call addUserToFirestore method after user login is confirmed
+                    firebaseAuthRepository.addUserToFirestore(user)
+                } else {
+                }
             }
         }
     }
@@ -81,7 +84,7 @@ class AccountViewModel @Inject constructor(
                         firebaseAuthRepository.updateUserDisplayInfo(
                             newDisplayName = newDisplayName,
                             newPhoto = newPhoto,
-                        ){
+                        ) {
                             showToast(context = context, message = it)
                         }
                     }
@@ -137,7 +140,6 @@ class AccountViewModel @Inject constructor(
     fun initiateAccountDeletion(onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
             val result = firebaseAuthRepository.deleteUserAccount()
-
             if (result.isSuccess) {
                 showToast(context, "Account successfully deleted.", Toast.LENGTH_LONG)
                 onComplete(true, null)
@@ -147,7 +149,11 @@ class AccountViewModel @Inject constructor(
                     showToast(context, "Please re-login to delete your account.", Toast.LENGTH_LONG)
                     onComplete(false, "Please re-login to delete your account.")
                 } else {
-                    showToast(context, exception?.message ?: "An error occurred during account deletion.", Toast.LENGTH_LONG)
+                    showToast(
+                        context,
+                        exception?.message ?: "An error occurred during account deletion.",
+                        Toast.LENGTH_LONG
+                    )
                     onComplete(false, exception?.message)
                 }
             }
@@ -175,16 +181,16 @@ class AccountViewModel @Inject constructor(
             try {
                 FirebaseAuth.getInstance().signInAnonymously()
                     .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Sign-in success, update the UI with the signed-in user's information
-                        Log.d("AccountViewModel", "signInAnonymously:success")
-                        currentUser.value = FirebaseAuth.getInstance().currentUser
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("AccountViewModel", "signInAnonymously:failure", task.exception)
-                        showToast(context, "Authentication failed.")
+                        if (task.isSuccessful) {
+                            // Sign-in success, update the UI with the signed-in user's information
+                            Log.d("AccountViewModel", "signInAnonymously:success")
+                            currentUser.value = FirebaseAuth.getInstance().currentUser
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("AccountViewModel", "signInAnonymously:failure", task.exception)
+                            showToast(context, "Authentication failed.")
+                        }
                     }
-                }
             } catch (e: Exception) {
                 Log.e("AccountViewModel", "signInAnonymously:exception", e)
                 showToast(context, "Authentication failed. Exception: ${e.message}")
@@ -192,16 +198,14 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun signOut(
-
-    ) {
+    fun signOut() {
         viewModelScope.launch {
             try {
                 val success = firebaseAuthRepository.signOut(context) {
                     showToast(context, "Signed out!")
                 }
             } catch (e: Exception) {
-                Log.d("signin", "sign out error: ${e.message.toString()}")
+                Log.d("signout", "sign out error: ${e.message.toString()}")
             }
         }
     }

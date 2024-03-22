@@ -25,6 +25,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -73,137 +74,146 @@ fun PracticeWordSelect(
         mutableStateOf(false)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Select Words to practice",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Start
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                OutlinedButton(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = {
-                        showWordSelectionModal.value = true
-                    }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
-                    Text(text = "Search")
-                }
-                OutlinedButton(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = {
-                        if (isLoggedIn.value) {
-                            showListSelectionModal.value = true
-                        } else {
-                            Toast.makeText(context, "You need to be logged in to add from the list", Toast.LENGTH_LONG).show()
-                        }
-                    },
-                    enabled = isLoggedIn.value,
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Select Words to practice",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    Icon(imageVector = Icons.Default.List, contentDescription = "List Icon")
-                    Text(text = "Add from list")
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Words",
-                style = MaterialTheme.typography.headlineSmall
-            )
-            if (words.value.size < 4) {
-                Text(text = "Add at least 4 words!", color = MaterialTheme.colorScheme.error)
-            }
-            Divider(Modifier.padding(top = 8.dp))
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(
-                    words.value.size
-                ) {
-                    val word = words.value[it]
-                    WordRow(
-                        word = word,
+                    OutlinedButton(
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         onClick = {
-                            isWordDialogOpen.value = true
-                        },
-                        isDialogOpen = isWordDialogOpen,
-                        dropdownMenu = { menuExpanded, setMenuExpanded ->
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { setMenuExpanded(false) }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Remove") },
-                                    onClick = {
-                                        sharedViewModel.removeWordFromPractice(word)
-                                        setMenuExpanded(false)
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Filled.Delete,
-                                            contentDescription = "Remove from from List"
-                                        )
-                                    }
-                                )
+                            showWordSelectionModal.value = true
+                        }) {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
+                        Text(text = "Search")
+                    }
+                    OutlinedButton(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        onClick = {
+                            if (isLoggedIn.value) {
+                                showListSelectionModal.value = true
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "You need to be logged in to add from the list",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
-                        }
-                    )
-                    Divider(color = Color.Black)
+                        },
+                        enabled = isLoggedIn.value,
+                    ) {
+                        Icon(imageVector = Icons.Default.List, contentDescription = "List Icon")
+                        Text(text = "Add from list")
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Words",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                if (words.value.size < 4) {
+                    Text(text = "Add at least 4 words!", color = MaterialTheme.colorScheme.error)
+                }
+                Divider(Modifier.padding(top = 8.dp))
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(
+                        words.value.size
+                    ) {
+                        val word = words.value[it]
+                        WordRow(
+                            word = word,
+                            onClick = {
+                                isWordDialogOpen.value = true
+                            },
+                            isDialogOpen = isWordDialogOpen,
+                            dropdownMenu = { menuExpanded, setMenuExpanded ->
+                                DropdownMenu(
+                                    expanded = menuExpanded,
+                                    onDismissRequest = { setMenuExpanded(false) }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Remove") },
+                                        onClick = {
+                                            sharedViewModel.removeWordFromPractice(word)
+                                            setMenuExpanded(false)
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Filled.Delete,
+                                                contentDescription = "Remove from from List"
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                        Divider(color = Color.Black)
+                    }
                 }
             }
-        }
-        FloatingActionButton(
-            onClick = {
-                if (words.value.size >= 4) {
-                    onNext()
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Please select at least one quiz type",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            },
-            shape = RoundedCornerShape(50),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(100.dp)
-                .padding(16.dp),
-            containerColor = if (words.value.size >= 4) MaterialTheme.colorScheme.secondary else Color.Gray,
-        ) {
-            Text("Next")
-        }
-    }
-    if (showListSelectionModal.value) {
-        ListSelectionModal(
-            sheetState = wordListSheetState,
-            showBottomSheet = showListSelectionModal,
-            scope = scope,
-            wordLists = wordLists,
-            onClick = {
-                sharedViewModel.addFromWordList(it)
-                showListSelectionModal.value = false
-            })
-    }
-    if(showWordSelectionModal.value){
-        WordSelectionModal(
-            sheetState = wordsSheetShape,
-            showBottomSheet = showWordSelectionModal,
-            scope = scope,
-            query = query,
-            active = active,
-            onSearch = {sharedViewModel.onSearchWord(it)},
-            words = searchResults,
-            onClick = {
-                sharedViewModel.addWord(it)
-                showWordSelectionModal.value = false
+            FloatingActionButton(
+                onClick = {
+                    if (words.value.size >= 4) {
+                        onNext()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Please select at least one quiz type",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(100.dp)
+                    .padding(16.dp),
+                containerColor = if (words.value.size >= 4) MaterialTheme.colorScheme.secondary else Color.Gray,
+            ) {
+                Text("Next")
             }
-        )
+        }
+        if (showListSelectionModal.value) {
+            ListSelectionModal(
+                sheetState = wordListSheetState,
+                showBottomSheet = showListSelectionModal,
+                scope = scope,
+                wordLists = wordLists,
+                onClick = {
+                    sharedViewModel.addFromWordList(it)
+                    showListSelectionModal.value = false
+                })
+        }
+        if (showWordSelectionModal.value) {
+            WordSelectionModal(
+                sheetState = wordsSheetShape,
+                showBottomSheet = showWordSelectionModal,
+                scope = scope,
+                query = query,
+                active = active,
+                onSearch = { sharedViewModel.onSearchWord(it) },
+                words = searchResults,
+                onClick = {
+                    sharedViewModel.addWord(it)
+                    showWordSelectionModal.value = false
+                }
+            )
+        }
     }
 }
