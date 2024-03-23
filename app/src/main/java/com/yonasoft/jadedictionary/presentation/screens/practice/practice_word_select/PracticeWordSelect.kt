@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -53,12 +54,14 @@ fun PracticeWordSelect(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val screen = sharedViewModel.screen
 
     val query = sharedViewModel.wordSearchQuery
     val active = sharedViewModel.queryActive
     val searchResults = sharedViewModel.searchResults
 
     val words = sharedViewModel.practiceWords
+    val wordIds = sharedViewModel.wordIds
     val isLoggedIn = sharedViewModel.isLoggedIn.collectAsState()
     val wordLists = sharedViewModel.wordLists.collectAsState()
 
@@ -93,10 +96,10 @@ fun PracticeWordSelect(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     OutlinedButton(
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier,
                         onClick = {
                             showWordSelectionModal.value = true
                         }) {
@@ -104,7 +107,7 @@ fun PracticeWordSelect(
                         Text(text = "Search")
                     }
                     OutlinedButton(
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier,
                         onClick = {
                             if (isLoggedIn.value) {
                                 showListSelectionModal.value = true
@@ -120,6 +123,13 @@ fun PracticeWordSelect(
                     ) {
                         Icon(imageVector = Icons.Default.List, contentDescription = "List Icon")
                         Text(text = "Add from list")
+                    }
+                    Button(
+                        modifier = Modifier,
+                        onClick = {
+
+                        }) {
+                        Text(text = "Back")
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))

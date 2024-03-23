@@ -1,6 +1,8 @@
 package com.yonasoft.jadedictionary.presentation.screens.practice
 
+import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,7 +29,7 @@ class PracticeSharedViewModel @Inject constructor(
     private val firebaseAuthRepository: FirebaseAuthRepository,
 ) : ViewModel() {
 
-    val screen = mutableStateOf(0)
+    val screen = mutableIntStateOf(0)
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
@@ -36,7 +38,7 @@ class PracticeSharedViewModel @Inject constructor(
     val isStopwatch = mutableStateOf(false)
     val timerDuration = mutableStateOf<TimerDuration>(TimerDuration.None)
     val practiceMode = mutableStateOf<PracticeMode>(PracticeMode.FlashCards)
-    val quizType = mutableStateOf<Set<QuizType>>(setOf(QuizType.HanziDefinition))
+    val quizType = mutableStateOf<MutableList<QuizType>>(mutableListOf(QuizType.HanziDefinition))
 
     //Word adding
     val wordSearchQuery = mutableStateOf("")
@@ -46,17 +48,20 @@ class PracticeSharedViewModel @Inject constructor(
     val wordLists = _wordLists.asStateFlow()
 
     //Word adding + practice session
-    private val wordIds = mutableStateOf(setOf<Long>())
+    val wordIds = mutableStateOf(setOf<Long>())
     val practiceWords = mutableStateOf<List<Word>>(emptyList())
 
     //Practice session
-    val isStopwatchRunning = mutableStateOf(true)
-    val stopwatchTime = mutableStateOf(0L)
-    val timerTime = mutableStateOf(TimerDuration.None.durationInMillis ?: 0L)
+    private val isStopwatchRunning = mutableStateOf(true)
+    val stopwatchTime = mutableLongStateOf(0L)
+    val timerTime = mutableLongStateOf(TimerDuration.None.durationInMillis ?: 0L)
     val timerRunning = mutableStateOf(false)
     val wordIndex = mutableIntStateOf(0)
-    val answers = hashMapOf<String,MutableList<Word>>()
+    val answers = mutableStateOf<HashMap<String, MutableList<Word>>>(hashMapOf())
     val canNext = mutableStateOf(false)
+    val answerType = mutableStateOf(quizType.value[0].stringType1)
+    val questionType = mutableStateOf(quizType.value[0].stringType2)
+
 
     init {
         firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
@@ -122,7 +127,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private fun getAllWordList() {
-        if (firebaseAuthRepository.getAuth().currentUser!=null) {
+        if (firebaseAuthRepository.getAuth().currentUser != null) {
             viewModelScope.launch {
                 wordListRepository.getWordLists().collect { lists ->
                     _wordLists.value = lists
@@ -152,11 +157,12 @@ class PracticeSharedViewModel @Inject constructor(
 
     fun startStopwatch() {
         viewModelScope.launch {
-            val startTime = System.currentTimeMillis() - stopwatchTime.value // Adjust to continue from current time
+            val startTime =
+                System.currentTimeMillis() - stopwatchTime.longValue // Adjust to continue from current time
             isStopwatchRunning.value = true
             while (isStopwatchRunning.value) {
                 delay(100) // Update every 100 milliseconds
-                stopwatchTime.value = System.currentTimeMillis() - startTime
+                stopwatchTime.longValue = System.currentTimeMillis() - startTime
             }
         }
     }
@@ -170,20 +176,20 @@ class PracticeSharedViewModel @Inject constructor(
         }
         canNext.value = false // Ensure "Next" is disabled when the timer starts.
         timerRunning.value = true
-        timerTime.value = totalTime
+        timerTime.longValue = totalTime
         viewModelScope.launch {
             var timeLeft = totalTime
             while (timeLeft > 0 && timerRunning.value) {
                 delay(1000) // Decrease every second
                 timeLeft -= 1000
-                timerTime.value = timeLeft
+                timerTime.longValue = timeLeft
             }
             timerRunning.value = false
             canNext.value = true
         }
     }
 
-    fun pauseTimer() {
+    private fun pauseTimer() {
         // Stops the timer without resetting the time left
         timerRunning.value = false
     }
@@ -191,10 +197,10 @@ class PracticeSharedViewModel @Inject constructor(
     fun resetTimer() {
         // Resets the timer to the original duration
         pauseTimer()
-        timerTime.value = timerDuration.value.durationInMillis ?: 0L
+        timerTime.longValue = timerDuration.value.durationInMillis ?: 0L
     }
 
-    fun pauseStopwatch() {
+    private fun pauseStopwatch() {
         // To pause the stopwatch, we need to stop updating its time
         // This can be tricky because your current implementation continuously updates
         // Consider introducing a variable to control whether the stopwatch should update
@@ -204,7 +210,46 @@ class PracticeSharedViewModel @Inject constructor(
     fun resetStopwatch() {
         // Resets the stopwatch to 0 and stops updating
         pauseStopwatch() // First, make sure the stopwatch is paused
-        stopwatchTime.value = 0L // Reset the stopwatch time to 0
+        stopwatchTime.longValue = 0L // Reset the stopwatch time to 0
     }
 
+    fun onBackFromWordSelect (){
+        practiceWords.value = mutableListOf()
+        wordIds.value = mutableSetOf()
+        screen.intValue -= 1
+    }
+    fun onExit(){
+        viewModelScope.launch {
+            resetTimer()
+            resetStopwatch()
+            canNext.value = false
+            wordIndex.intValue = 0
+            answers.value = hashMapOf()
+            questionType.value = quizType.value[0].stringType1
+            answerType.value = quizType.value[0].stringType2
+            screen.intValue -= 1
+        }
+    }
+
+    fun randomizeQA() {
+        viewModelScope.launch {
+            val randomQuizType = quizType.value.random()
+            val answerQuestion = listOf(randomQuizType.stringType1, randomQuizType.stringType2).shuffled()
+            answerType.value = answerQuestion[0]
+            questionType.value = answerQuestion[1]
+            Log.i( "randomizeQA ", "types: ${quizType.value}, ques:${quizType.value} answer:${answerType.value}")
+        }
+    }
+
+    fun onAnswerFlashCard(choice: String, word: Word) {
+        viewModelScope.launch {
+            if (choice !in answers.value) {
+                answers.value[choice] = mutableListOf()
+            }
+            answers.value[choice]!!.add(word)
+            pauseTimer()
+            pauseStopwatch()
+            canNext.value = true
+        }
+    }
 }

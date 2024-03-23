@@ -3,8 +3,6 @@
 package com.yonasoft.jadedictionary.presentation.components.appbar
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,7 +35,6 @@ fun JadeAppBar(scope: CoroutineScope, drawerState: DrawerState, navController: N
         currentBackStackEntry != null && navController.previousBackStackEntry != null
 
     CenterAlignedTopAppBar(
-
         modifier = Modifier
             .shadow(8.dp),
         title = {
@@ -51,7 +48,6 @@ fun JadeAppBar(scope: CoroutineScope, drawerState: DrawerState, navController: N
                             topStart = 8.dp
                         )
                     )
-                    .fillMaxHeight()
                     .width(100.dp),
                 contentScale = ContentScale.Inside,
             )

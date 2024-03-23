@@ -1,5 +1,6 @@
 package com.yonasoft.jadedictionary.presentation.screens.practice.practice_mode_selection
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,10 @@ fun PracticeModeSettings(
 
     val context = LocalContext.current
     val isQuizTypeSelected = sharedViewModel.quizType.value.isNotEmpty()
+
+    LaunchedEffect(sharedViewModel.quizType.value){
+        Log.i("quiz type", sharedViewModel.quizType.value.toString())
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -187,7 +193,7 @@ fun QuizTypeSelector(sharedViewModel: PracticeSharedViewModel) {
                     label = "${quizType.stringType1.name} <-> ${quizType.stringType2.name}",
                     isSelected = isSelected,
                     onSelectionChanged = { selected ->
-                        val currentSelection = sharedViewModel.quizType.value.toMutableSet()
+                        val currentSelection = sharedViewModel.quizType.value.map { it }.toMutableList()
                         if (selected) currentSelection.add(quizType)
                         else currentSelection.remove(quizType)
                         sharedViewModel.quizType.value = currentSelection

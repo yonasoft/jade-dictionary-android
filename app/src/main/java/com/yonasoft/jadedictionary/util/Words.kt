@@ -1,6 +1,8 @@
 package com.yonasoft.jadedictionary.util
 
 import com.yonasoft.jadedictionary.data.constants.StringType
+import com.yonasoft.jadedictionary.data.models.Word
+
 fun determineStringType(input: String): StringType {
     val trimmedInput = input.trim()
     if (trimmedInput.isEmpty()) return StringType.English
@@ -11,7 +13,10 @@ fun determineStringType(input: String): StringType {
 
     return when {
         hanziPattern.containsMatchIn(trimmedInput) -> StringType.Hanzi
-        pinyinPatternWithNumbers.containsMatchIn(trimmedInput) || pinyinPatternWithTones.containsMatchIn(trimmedInput) -> StringType.Pinyin
+        pinyinPatternWithNumbers.containsMatchIn(trimmedInput) || pinyinPatternWithTones.containsMatchIn(
+            trimmedInput
+        ) -> StringType.Pinyin
+
         else -> StringType.English
     }
 }
@@ -35,13 +40,17 @@ fun rearrangeToneNumbersAndAddSpaces(input: String): String {
     // Split the input by whitespace, then process each syllable
     val syllables = input.split("\\s+".toRegex()).map { syllable ->
         // First, rearrange the syllable to ensure tones are at the end
-        val rearranged = syllable.replace(Regex("^([bpmfdtnlgkhjqxzcsryw]*)([aeiouüv]+)([ngh]?)([1-5]?)$"), "$1$2$3$4")
+        val rearranged = syllable.replace(
+            Regex("^([bpmfdtnlgkhjqxzcsryw]*)([aeiouüv]+)([ngh]?)([1-5]?)$"),
+            "$1$2$3$4"
+        )
         // Move any tone numbers that appear between vowels and consonants to the end of the syllable
         rearranged.replace(Regex("([aeiouüv])([1-5])([ngh]?)"), "$1$3$2")
     }
     // Join the processed syllables back together with spaces, ensuring correct spacing between syllables
     return syllables.joinToString(" ").replace(Regex("([1-5])([bpmfdtnlgkhjqxzcsryw])"), "$1 $2")
 }
+
 fun normalizePinyinInput(input: String): String {
     var normalizedInput = input
     // Convert tone marks to numbers if present
@@ -51,4 +60,13 @@ fun normalizePinyinInput(input: String): String {
     // Rearrange tone numbers and add spaces as necessary
     normalizedInput = rearrangeToneNumbersAndAddSpaces(normalizedInput)
     return normalizedInput.trim()
+}
+
+fun extractStringFromWord(word: Word, stringType: StringType): String {
+    val hanzi = word.simplified + if (word.traditional != null) "(${word.traditional})" else ""
+    return when (stringType) {
+        StringType.English -> word.definition?:""
+        StringType.Pinyin -> word.pinyin?:""
+        StringType.Hanzi -> hanzi
+    }
 }

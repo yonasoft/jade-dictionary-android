@@ -36,7 +36,7 @@ fun PracticeSessionContainer(
     sharedViewModel: PracticeSharedViewModel = hiltViewModel(),
 ) {
     val screen = sharedViewModel.screen
-
+    val practiceMode = sharedViewModel.practiceMode
     val wordIndex = sharedViewModel.wordIndex
     val practiceWords = sharedViewModel.practiceWords
     val isStopwatch = sharedViewModel.isStopwatch
@@ -45,15 +45,24 @@ fun PracticeSessionContainer(
     val timerDuration = sharedViewModel.timerDuration
     val timerRunning = sharedViewModel.timerRunning
     val canNext = sharedViewModel.canNext
-    val word = sharedViewModel.practiceWords.value[sharedViewModel.wordIndex.value]
+    val answers = sharedViewModel.answers
+    val questionType = sharedViewModel.questionType
+    val answerType = sharedViewModel.answerType
+    val word = practiceWords.value[wordIndex.intValue]
+    val quizType = sharedViewModel.quizType
 
-    LaunchedEffect(key1 = isStopwatch.value, key2 = timerDuration.value) {
+    LaunchedEffect(key1 = isStopwatch.value, key2 = timerDuration.value, key3 = quizType.value) {
+        practiceWords.value = practiceWords.value.shuffled()
         if (isStopwatch.value) {
             sharedViewModel.startStopwatch()
         }
         if (timerDuration.value != TimerDuration.None) {
             sharedViewModel.startTimer()
         }
+    }
+
+    LaunchedEffect(wordIndex){
+        sharedViewModel.randomizeQA()
     }
 
     Surface(
@@ -66,7 +75,12 @@ fun PracticeSessionContainer(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-
+                    if (timerDuration.value != TimerDuration.None) {
+                        Row {
+                            Text(text = "Timer: ", fontWeight = FontWeight.Bold)
+                            TimerDisplay(timerTime = timerTime)
+                        }
+                    }
                     if (isStopwatch.value) {
                         Row {
                             Text(text = "Stopwatch: ", fontWeight = FontWeight.Bold)
@@ -74,40 +88,38 @@ fun PracticeSessionContainer(
                         }
                     }
                 }
-                if (timerDuration.value != TimerDuration.None) {
-                    Row {
-                        Text(text = "Timer: ", fontWeight = FontWeight.Bold)
-                        TimerDisplay(timerTime = timerTime)
-                    }
+                Button(onClick = {
+                    sharedViewModel.onExit()
+
+                }) {
+                    Text(text = "Exit")
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Button(onClick = {
-                        sharedViewModel.resetTimer()
-                        sharedViewModel.resetStopwatch()
-                        screen.value -= 1
-                    }) {
-                        Text(text = "Exit")
-                    }
-                    Button(onClick = {
-                        sharedViewModel.pauseStopwatch()
-                        sharedViewModel.pauseTimer()
-                        canNext.value = false
-                    }) {
-                        Text(text = "Pause")
-                    }
-                }
+
                 Divider(modifier = Modifier.height(2.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
 
-                    when (sharedViewModel.practiceMode.value) {
-                        PracticeMode.FlashCards -> FlashCardPractice()
+                        ) {
+                        Text(text = "Word: ", fontWeight = FontWeight.Bold)
+                        Text(text = "${wordIndex.value + 1}/${practiceWords.value.size}")
+                    }
+                    when (practiceMode.value) {
+                        PracticeMode.FlashCards -> FlashCardPractice(
+                            word = word,
+                            questionsType = questionType,
+                            answerType = answerType,
+                            timerRunning = sharedViewModel.timerRunning,
+                            wordIndex = wordIndex,
+                            onAnswer = {
+                                sharedViewModel.onAnswerFlashCard(choice = it, word = word)
+                            },
+                        )
+
                         PracticeMode.MultipleChoice -> MultipleChoicePractice()
                     }
                 }
@@ -115,12 +127,12 @@ fun PracticeSessionContainer(
             FloatingActionButton(
                 onClick = {
                     if (canNext.value) {
-                        wordIndex.value++
-                        if(wordIndex.value < practiceWords.value.size) {
+                        wordIndex.intValue++
+                        if (wordIndex.intValue < practiceWords.value.size) {
                             sharedViewModel.startStopwatch()
                             sharedViewModel.startTimer()
-                        } else{
-                            screen.value++
+                        } else {
+                            screen.intValue++
                         }
                     }
                 },
@@ -136,6 +148,7 @@ fun PracticeSessionContainer(
         }
     }
 }
+
 
 @Composable
 fun StopwatchDisplay(stopwatchTime: State<Long>) {

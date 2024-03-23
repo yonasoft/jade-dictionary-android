@@ -16,13 +16,13 @@ fun PracticeScreen(
 ) {
     val screen = sharedViewModel.screen
 
-    when (screen.value) {
+    when (screen.intValue) {
         0 -> PracticeModeSettings(sharedViewModel = sharedViewModel) {
-            screen.value = 1
+            screen.intValue = 1
         }
 
         1 -> PracticeWordSelect(sharedViewModel = sharedViewModel) {
-            screen.value = 2
+            screen.intValue = 2
         }
 
         2 -> PracticeSessionContainer(sharedViewModel = sharedViewModel)
