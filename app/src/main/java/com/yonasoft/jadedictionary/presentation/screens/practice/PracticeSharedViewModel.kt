@@ -158,7 +158,7 @@ class PracticeSharedViewModel @Inject constructor(
     fun startStopwatch() {
         viewModelScope.launch {
             val startTime =
-                System.currentTimeMillis() - stopwatchTime.longValue // Adjust to continue from current time
+                System.currentTimeMillis() - stopwatchTime.longValue
             isStopwatchRunning.value = true
             while (isStopwatchRunning.value) {
                 delay(100) // Update every 100 milliseconds
@@ -170,11 +170,10 @@ class PracticeSharedViewModel @Inject constructor(
     fun startTimer() {
         val totalTime = timerDuration.value.durationInMillis ?: 0L
         if (totalTime == 0L) {
-            // If there's no timer duration, allow proceeding immediately.
             canNext.value = true
             return
         }
-        canNext.value = false // Ensure "Next" is disabled when the timer starts.
+        canNext.value = false
         timerRunning.value = true
         timerTime.longValue = totalTime
         viewModelScope.launch {
@@ -190,21 +189,16 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private fun pauseTimer() {
-        // Stops the timer without resetting the time left
         timerRunning.value = false
     }
 
     fun resetTimer() {
-        // Resets the timer to the original duration
         pauseTimer()
         timerTime.longValue = timerDuration.value.durationInMillis ?: 0L
     }
 
     private fun pauseStopwatch() {
-        // To pause the stopwatch, we need to stop updating its time
-        // This can be tricky because your current implementation continuously updates
-        // Consider introducing a variable to control whether the stopwatch should update
-        isStopwatchRunning.value = false // You'll need to add this state variable
+        isStopwatchRunning.value = false
     }
 
     fun resetStopwatch() {
@@ -213,12 +207,15 @@ class PracticeSharedViewModel @Inject constructor(
         stopwatchTime.longValue = 0L // Reset the stopwatch time to 0
     }
 
-    fun onBackFromWordSelect (){
-        practiceWords.value = mutableListOf()
-        wordIds.value = mutableSetOf()
-        screen.intValue -= 1
+    fun onBackFromWordSelect() {
+        viewModelScope.launch {
+            practiceWords.value = mutableListOf()
+            wordIds.value = mutableSetOf()
+            screen.intValue -= 1
+        }
     }
-    fun onExit(){
+
+    fun onExitSession() {
         viewModelScope.launch {
             resetTimer()
             resetStopwatch()
@@ -231,13 +228,18 @@ class PracticeSharedViewModel @Inject constructor(
         }
     }
 
+
     fun randomizeQA() {
         viewModelScope.launch {
             val randomQuizType = quizType.value.random()
-            val answerQuestion = listOf(randomQuizType.stringType1, randomQuizType.stringType2).shuffled()
+            val answerQuestion =
+                listOf(randomQuizType.stringType1, randomQuizType.stringType2).shuffled()
             answerType.value = answerQuestion[0]
             questionType.value = answerQuestion[1]
-            Log.i( "randomizeQA ", "types: ${quizType.value}, ques:${quizType.value} answer:${answerType.value}")
+            Log.i(
+                "randomizeQA ",
+                "types: ${quizType.value}, ques:${questionType.value} answer:${answerType.value}"
+            )
         }
     }
 

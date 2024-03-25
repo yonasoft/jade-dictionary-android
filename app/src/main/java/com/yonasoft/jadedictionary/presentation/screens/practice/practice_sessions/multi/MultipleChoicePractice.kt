@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.practice_modes.multi
+package com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.multi
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

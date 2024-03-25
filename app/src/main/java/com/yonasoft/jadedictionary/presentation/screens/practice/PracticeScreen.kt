@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.yonasoft.jadedictionary.presentation.screens.practice.practice_mode_selection.PracticeModeSettings
+import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.PracticeResultsScreen
 import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.PracticeSessionContainer
 import com.yonasoft.jadedictionary.presentation.screens.practice.practice_word_select.PracticeWordSelect
 
@@ -26,5 +27,7 @@ fun PracticeScreen(
         }
 
         2 -> PracticeSessionContainer(sharedViewModel = sharedViewModel)
+
+        3 -> PracticeResultsScreen(navController = navController, sharedViewModel = sharedViewModel)
     }
 }

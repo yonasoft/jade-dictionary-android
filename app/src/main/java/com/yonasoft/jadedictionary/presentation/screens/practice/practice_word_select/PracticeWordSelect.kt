@@ -127,7 +127,7 @@ fun PracticeWordSelect(
                     Button(
                         modifier = Modifier,
                         onClick = {
-
+                            sharedViewModel.onBackFromWordSelect()
                         }) {
                         Text(text = "Back")
                     }

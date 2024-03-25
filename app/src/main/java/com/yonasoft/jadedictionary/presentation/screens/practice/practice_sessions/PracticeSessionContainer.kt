@@ -28,8 +28,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.yonasoft.jadedictionary.data.constants.PracticeMode
 import com.yonasoft.jadedictionary.data.constants.TimerDuration
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeSharedViewModel
-import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.practice_modes.flash_card.FlashCardPractice
-import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.practice_modes.multi.MultipleChoicePractice
+import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.flash_card.FlashCardPractice
+import com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.multi.MultipleChoicePractice
 
 @Composable
 fun PracticeSessionContainer(
@@ -61,7 +61,7 @@ fun PracticeSessionContainer(
         }
     }
 
-    LaunchedEffect(wordIndex){
+    LaunchedEffect(wordIndex.value){
         sharedViewModel.randomizeQA()
     }
 
@@ -89,7 +89,7 @@ fun PracticeSessionContainer(
                     }
                 }
                 Button(onClick = {
-                    sharedViewModel.onExit()
+                    sharedViewModel.onExitSession()
 
                 }) {
                     Text(text = "Exit")

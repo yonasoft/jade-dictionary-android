@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.practice_modes.flash_card
+package com.yonasoft.jadedictionary.presentation.screens.practice.practice_sessions.flash_card
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
