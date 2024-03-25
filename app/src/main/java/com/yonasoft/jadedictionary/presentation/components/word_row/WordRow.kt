@@ -37,7 +37,6 @@ fun WordRow(
     word: Word,
     onClick: () -> Unit,
     isDialogOpen: MutableState<Boolean>?,
-
     dropdownMenu: (@Composable (menuExpanded: Boolean, setMenuExpanded: (value:Boolean) -> Unit) -> Unit)?
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -54,7 +53,6 @@ fun WordRow(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 100.dp)
             .padding(horizontal = 4.dp)
-        // Make the entire row clickable to show the word detail
     ) {
         Column(
             modifier = Modifier

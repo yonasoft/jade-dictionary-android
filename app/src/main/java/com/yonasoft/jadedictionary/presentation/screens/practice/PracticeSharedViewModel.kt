@@ -1,6 +1,8 @@
 package com.yonasoft.jadedictionary.presentation.screens.practice
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,15 +17,18 @@ import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class PracticeSharedViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
     private val firebaseAuthRepository: FirebaseAuthRepository,
@@ -252,6 +257,24 @@ class PracticeSharedViewModel @Inject constructor(
             pauseTimer()
             pauseStopwatch()
             canNext.value = true
+        }
+    }
+
+    fun addToWordList(wordList: WordList, word: Word) {
+        val wordIds = wordList.wordIds
+        if (word.id in wordIds) {
+            Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewModelScope.launch {
+            val wordId = word.id
+            val newWordListIds = mutableListOf<Long>()
+            newWordListIds.addAll(wordList.wordIds)
+            newWordListIds.add(wordId!!)
+            val newWordList = wordList.copy(wordIds = newWordListIds, lastUpdatedAt = Date())
+            Log.i("wordlist", "$newWordList")
+            wordListRepository.addOrUpdateWordList(newWordList)
+            Toast.makeText(context, "${word.simplified} added to ${wordList.title}", Toast.LENGTH_SHORT).show()
         }
     }
 }

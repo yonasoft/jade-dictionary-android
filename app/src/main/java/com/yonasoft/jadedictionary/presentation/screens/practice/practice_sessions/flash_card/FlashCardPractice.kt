@@ -189,7 +189,7 @@ fun ChoiceSelector(
                     "Easy" -> Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Easy Button",
-                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(text = choice)

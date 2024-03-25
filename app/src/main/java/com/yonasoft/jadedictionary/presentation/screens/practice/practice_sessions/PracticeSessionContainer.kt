@@ -90,7 +90,6 @@ fun PracticeSessionContainer(
                 }
                 Button(onClick = {
                     sharedViewModel.onExitSession()
-
                 }) {
                     Text(text = "Exit")
                 }

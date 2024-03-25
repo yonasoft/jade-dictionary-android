@@ -117,6 +117,7 @@ class SearchScreenViewModel @Inject constructor(
             val newWordList = wordList.copy(wordIds = newWordListIds, lastUpdatedAt = Date())
             Log.i("wordlist", "$newWordList")
             wordListRepository.addOrUpdateWordList(newWordList)
+            Toast.makeText(context, "${word.simplified} added to ${wordList.title}", Toast.LENGTH_SHORT).show()
         }
     }
 }
