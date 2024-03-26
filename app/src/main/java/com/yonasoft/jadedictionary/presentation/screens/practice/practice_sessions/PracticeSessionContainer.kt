@@ -61,7 +61,7 @@ fun PracticeSessionContainer(
         }
     }
 
-    LaunchedEffect(wordIndex.value){
+    LaunchedEffect(wordIndex.value) {
         sharedViewModel.randomizeQA()
     }
 
@@ -110,16 +110,25 @@ fun PracticeSessionContainer(
                     when (practiceMode.value) {
                         PracticeMode.FlashCards -> FlashCardPractice(
                             word = word,
+                            wordIndex = wordIndex,
                             questionsType = questionType,
                             answerType = answerType,
-                            timerRunning = sharedViewModel.timerRunning,
-                            wordIndex = wordIndex,
+                            timerRunning = if (timerDuration.value != TimerDuration.None) timerRunning else null,
                             onAnswer = {
-                                sharedViewModel.onAnswerFlashCard(choice = it, word = word)
+                                sharedViewModel.onAnswer(result = it, word = word)
                             },
                         )
 
-                        PracticeMode.MultipleChoice -> MultipleChoicePractice()
+                        PracticeMode.MultipleChoice -> MultipleChoicePractice(
+                            word = word,
+                            words = practiceWords,
+                            questionType = questionType,
+                            answerType = answerType,
+                            timerRunning = if (timerDuration.value != TimerDuration.None) timerRunning else null,
+                            onAnswer = {
+                                sharedViewModel.onAnswer(result = it, word = word)
+                            }
+                        )
                     }
                 }
             }

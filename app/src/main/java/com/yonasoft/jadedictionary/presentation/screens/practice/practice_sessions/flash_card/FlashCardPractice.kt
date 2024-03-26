@@ -45,7 +45,7 @@ fun FlashCardPractice(
     wordIndex: State<Int>,
     questionsType: State<StringType>,
     answerType: State<StringType>,
-    timerRunning: State<Boolean>,
+    timerRunning: State<Boolean>? = null,
     onAnswer: (choice: String) -> Unit,
 ) {
 
@@ -56,7 +56,7 @@ fun FlashCardPractice(
         ) {
             FlipCard(
                 front = extractStringFromWord(word, questionsType.value),
-                back = extractStringFromWord(word, answerType.value!!),
+                back = extractStringFromWord(word, answerType.value),
             )
         }
         ChoiceSelector(
@@ -64,6 +64,7 @@ fun FlashCardPractice(
             onAnswer = onAnswer,
             wordIndex = wordIndex,
         )
+
     }
 }
 
@@ -133,7 +134,7 @@ fun FlipCard(front: String, back: String) {
 
 @Composable
 fun ChoiceSelector(
-    timerRunning: State<Boolean>,
+    timerRunning: State<Boolean>? = null,
     onAnswer: (choice: String) -> Unit,
     wordIndex: State<Int>
 ) {
@@ -143,10 +144,13 @@ fun ChoiceSelector(
         selectedChoice = null
     }
 
-    LaunchedEffect(timerRunning.value) {
-        if (!timerRunning.value && selectedChoice == null) {
-            selectedChoice = "Hard"
-            onAnswer("Hard")
+    timerRunning?.let { timerState ->
+        LaunchedEffect(timerState.value) {
+            // Check if the timer is not running and no choice has been selected yet
+            if (!timerState.value && selectedChoice == null) {
+                selectedChoice = "Hard" // Default or fallback answer
+                onAnswer("Hard")
+            }
         }
     }
 

@@ -13,7 +13,7 @@ object Practice {
     @Composable
     fun mapIconFromAnswer(category: String): (@Composable () -> Unit)? {
         return when (category) {
-            "Hard", "Wrong" -> {
+            "Hard", "Incorrect" -> {
                 @Composable {
                     Icon(
                         imageVector = Icons.Default.Close,

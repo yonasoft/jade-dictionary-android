@@ -102,6 +102,7 @@ fun WordAccordion(
             ) {
                 icon?.let { it() }
                 Text(text = title)
+                Text(text = " (${words.size})")
             }
             if (expanded.value) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {

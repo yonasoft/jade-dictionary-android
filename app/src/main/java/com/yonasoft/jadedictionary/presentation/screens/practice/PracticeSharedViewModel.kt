@@ -248,14 +248,14 @@ class PracticeSharedViewModel @Inject constructor(
         }
     }
 
-    fun onAnswerFlashCard(choice: String, word: Word) {
+    fun onAnswer(result: String, word: Word) {
         viewModelScope.launch {
-            if (choice !in answers.value) {
-                answers.value[choice] = mutableListOf()
+            if (result !in answers.value) {
+                answers.value[result] = mutableListOf()
             }
-            answers.value[choice]!!.add(word)
-            pauseTimer()
-            pauseStopwatch()
+            answers.value[result]!!.add(word)
+            if (timerDuration.value != TimerDuration.None) pauseTimer()
+            if (isStopwatch.value) pauseStopwatch()
             canNext.value = true
         }
     }
@@ -274,7 +274,11 @@ class PracticeSharedViewModel @Inject constructor(
             val newWordList = wordList.copy(wordIds = newWordListIds, lastUpdatedAt = Date())
             Log.i("wordlist", "$newWordList")
             wordListRepository.addOrUpdateWordList(newWordList)
-            Toast.makeText(context, "${word.simplified} added to ${wordList.title}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "${word.simplified} added to ${wordList.title}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
