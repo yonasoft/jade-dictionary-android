@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -98,11 +99,15 @@ fun WordAccordion(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                icon?.let { it() }
-                Text(text = title)
-                Text(text = " (${words.size})")
+                Row(horizontalArrangement = Arrangement.Start){
+                    icon?.let { it() }
+                    Text(text = title)
+                    Text(text = " (${words.size})")
+                }
+
+                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "Keyboard Arrow Down")
             }
             if (expanded.value) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {

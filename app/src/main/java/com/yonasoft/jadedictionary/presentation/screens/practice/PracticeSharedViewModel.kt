@@ -254,10 +254,10 @@ class PracticeSharedViewModel @Inject constructor(
                 answers.value[result] = mutableListOf()
             }
             answers.value[result]!!.add(word)
-            if (timerDuration.value != TimerDuration.None) pauseTimer()
-            if (isStopwatch.value) pauseStopwatch()
-            canNext.value = true
         }
+        if (timerDuration.value != TimerDuration.None) pauseTimer()
+        if (isStopwatch.value) pauseStopwatch()
+        canNext.value = true
     }
 
     fun addToWordList(wordList: WordList, word: Word) {

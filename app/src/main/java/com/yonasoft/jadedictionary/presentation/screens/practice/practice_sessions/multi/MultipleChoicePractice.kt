@@ -40,7 +40,7 @@ fun MultipleChoicePractice(
         mutableStateOf(randomizeChoices(word, words.value))
     }
 
-    LaunchedEffect(word){
+    LaunchedEffect(word) {
         choices.value = randomizeChoices(word, words.value)
     }
 
@@ -52,9 +52,12 @@ fun MultipleChoicePractice(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(360.dp)
+                .padding(8.dp)
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
@@ -111,17 +114,19 @@ fun RadioChoices(
 
     Column {
         choices.forEach { choice ->
-            Row(modifier = Modifier
-                .padding(vertical = 4.dp)
-                .clickable {
-                    if (areRadiosEnabled.value) {
-                        selectedChoice.value = choice
-                        val result =
-                            if (selectedChoice.value!! == answer) "Correct" else "Incorrect"
-                        areRadiosEnabled.value = false
-                        onAnswer(result)
-                    }
-                }
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        if (areRadiosEnabled.value) {
+                            selectedChoice.value = choice
+                            val result =
+                                if (selectedChoice.value!! == answer) "Correct" else "Incorrect"
+                            areRadiosEnabled.value = false
+                            onAnswer(result)
+                        }
+                    },
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
                     selected = choice == selectedChoice.value,
