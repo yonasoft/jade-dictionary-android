@@ -166,7 +166,6 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
             val user = FirebaseAuth.getInstance().currentUser

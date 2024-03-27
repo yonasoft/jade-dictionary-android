@@ -53,11 +53,9 @@ fun rearrangeToneNumbersAndAddSpaces(input: String): String {
 
 fun normalizePinyinInput(input: String): String {
     var normalizedInput = input
-    // Convert tone marks to numbers if present
     if (Regex("[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]").containsMatchIn(input)) {
         normalizedInput = convertToneMarksToNumbers(normalizedInput)
     }
-    // Rearrange tone numbers and add spaces as necessary
     normalizedInput = rearrangeToneNumbersAndAddSpaces(normalizedInput)
     return normalizedInput.trim()
 }
@@ -66,7 +64,57 @@ fun extractStringFromWord(word: Word, stringType: StringType): String {
     val hanzi = word.simplified + if (word.traditional != null) "(${word.traditional})" else ""
     return when (stringType) {
         StringType.English -> word.definition?:""
-        StringType.Pinyin -> word.pinyin?:""
+        StringType.Pinyin -> convertNumberedPinyinToAccented(word.pinyin?:"")
         StringType.Hanzi -> hanzi
     }
 }
+
+fun convertNumberedPinyinToAccented(pinyin: String): String {
+    val vowels = "aeiouüv"
+    val toneMarks = mapOf(
+        'a' to arrayOf("a", "ā", "á", "ǎ", "à"),
+        'e' to arrayOf("e", "ē", "é", "ě", "è"),
+        'i' to arrayOf("i", "ī", "í", "ǐ", "ì"),
+        'o' to arrayOf("o", "ō", "ó", "ǒ", "ò"),
+        'u' to arrayOf("u", "ū", "ú", "ǔ", "ù"),
+        'ü' to arrayOf("ü", "ǖ", "ǘ", "ǚ", "ǜ"),
+        'v' to arrayOf("ü", "ǖ", "ǘ", "ǚ", "ǜ") // 'v' is used for 'ü' in some systems
+    )
+
+    // Determine the primary vowel in a syllable for tone marking
+    fun primaryVowel(syllable: String): Char {
+        val order = "aoeüiu"
+        for (vowel in order) {
+            if (vowel in syllable) return vowel
+        }
+        return ' ' // Return space if no vowel is found, which should not happen
+    }
+
+    // Convert a single syllable from numbered to accented form
+    fun convertSyllable(syllable: String): String {
+        val toneNumber = syllable.takeLast(1).toString().toIntOrNull()
+        if (toneNumber == null || toneNumber !in 1..4) return syllable // Return original if no valid tone
+
+        val baseSyllable = syllable.dropLast(1)
+        val vowelToMark = primaryVowel(baseSyllable)
+
+        // Replace the primary vowel with its accented version
+        var marked = false
+        val convertedSyllable = baseSyllable.map { char ->
+            if (!marked && char == vowelToMark) {
+                marked = true
+                toneMarks[char]?.get(toneNumber) ?: char.toString()
+            } else char.toString()
+        }.joinToString("")
+
+        return convertedSyllable
+    }
+
+    // Process each syllable in the input string
+    return pinyin.split(" ").joinToString(" ") { syllable ->
+        convertSyllable(syllable)
+    }
+}
+
+
+

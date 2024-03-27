@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.presentation.components.dialogs.word_detail_dialog.WordDetailDialog
+import com.yonasoft.jadedictionary.util.convertNumberedPinyinToAccented
 
 @Composable
 fun WordRow(
@@ -78,7 +79,7 @@ fun WordRow(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .weight(0.5f),
-                    text = word.pinyin ?: "N/A",
+                    text = convertNumberedPinyinToAccented(word.pinyin?:""),
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp
                 )
