@@ -155,7 +155,7 @@ class AccountViewModel @Inject constructor(
                         "Please re-login to delete your account."
                     )
                 } else {
-                    showToast(
+                    if (!currentUser.value!!.isAnonymous) showToast(
                         context,
                         exception?.message ?: "An error occurred during account deletion.",
                         Toast.LENGTH_LONG
@@ -169,7 +169,6 @@ class AccountViewModel @Inject constructor(
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
-            // Fetch the current user again to ensure it's not null
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 Log.d("sign_in", "Attempting to add user to Firestore.")
@@ -188,17 +187,13 @@ class AccountViewModel @Inject constructor(
                 FirebaseAuth.getInstance().signInAnonymously()
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            // Sign-in success, update the UI with the signed-in user's information
-                            Log.d("AccountViewModel", "signInAnonymously:success")
                             currentUser.value = FirebaseAuth.getInstance().currentUser
                         } else {
-                            // If sign in fails, display a message to the user.
                             Log.w("AccountViewModel", "signInAnonymously:failure", task.exception)
                             showToast(context, "Authentication failed.")
                         }
                     }
             } catch (e: Exception) {
-                Log.e("AccountViewModel", "signInAnonymously:exception", e)
                 showToast(context, "Authentication failed. Exception: ${e.message}")
             }
         }

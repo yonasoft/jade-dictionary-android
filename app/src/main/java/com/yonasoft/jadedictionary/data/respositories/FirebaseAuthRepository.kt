@@ -225,21 +225,43 @@ class FirebaseAuthRepository(
             }
     }
 
-    suspend fun deleteUserAccount(uid:String?=firebaseAuth.currentUser?.uid!!): Result<Boolean> {
-        val currentUserUid = uid
-            ?: return Result.failure(Exception("No authenticated user found."))
+    suspend fun deleteUserAccount(user: FirebaseUser? = FirebaseAuth.getInstance().currentUser): Result<Boolean> {
+        user.let { user ->
+            return try {
+                deleteOldUserImage()
+                deleteAllUserWordLists()
+                firestore.collection("users").document(user!!.uid).delete().await()
+                firebaseAuth.currentUser?.delete()?.await()
 
-        return try {
-            deleteOldUserImage()
-            firestore.collection("users").document(currentUserUid).delete().await()
-            firebaseAuth.currentUser?.delete()?.await()
-
-            Result.success(true)
-        } catch (e: Exception) {
-            Log.e("FirebaseRepository", "Error deleting user account: $e")
-            Result.failure(e)
+                Result.success(true)
+            } catch (e: Exception) {
+                Log.e("FirebaseRepository", "Error deleting user account: $e")
+                Result.failure(e)
+            }
         }
     }
+
+    suspend fun deleteAllUserWordLists(user: FirebaseUser? = FirebaseAuth.getInstance().currentUser) {
+        if (user != null) {
+            val wordListsRef = FirebaseFirestore.getInstance().collection("wordLists")
+            wordListsRef.whereEqualTo("userUid", user.uid).get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Iterate through the documents and delete them individually
+                    for (document in task.result) {
+                        wordListsRef.document(document.id).delete().addOnSuccessListener {
+                            Log.d("DeleteDocument", "DocumentSnapshot successfully deleted!")
+                        }.addOnFailureListener { e ->
+                            Log.w("DeleteDocument", "Error deleting document", e)
+                        }
+                    }
+                } else {
+                    Log.d("QueryError", "Error getting documents: ", task.exception)
+                }
+            }
+        }
+
+    }
+
 
     fun signOut(context: Context, onComplete: () -> Unit) {
         AuthUI.getInstance()
