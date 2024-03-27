@@ -225,8 +225,8 @@ class FirebaseAuthRepository(
             }
     }
 
-    suspend fun deleteUserAccount(): Result<Boolean> {
-        val currentUserUid = firebaseAuth.currentUser?.uid
+    suspend fun deleteUserAccount(uid:String?=firebaseAuth.currentUser?.uid!!): Result<Boolean> {
+        val currentUserUid = uid
             ?: return Result.failure(Exception("No authenticated user found."))
 
         return try {

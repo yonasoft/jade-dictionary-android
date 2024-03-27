@@ -67,7 +67,11 @@ fun UserProfile(
         Button(
             modifier = Modifier,
             onClick = {
-                viewModel.signOut()
+                if(auth.value!!.currentUser!!.isAnonymous){
+                    viewModel.initiateAccountDeletion()
+                }else {
+                    viewModel.signOut()
+                }
             }) {
             Text(text = "Log out")
         }
@@ -109,7 +113,7 @@ fun UserProfile(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        if (!auth.value!!.currentUser!!.isAnonymous) {
+        if (auth.value?.currentUser!=null && !auth.value?.currentUser!!.isAnonymous) {
             PasswordSettingCard(
                 password = password.value,
                 confirmPassword = confirmPassword.value,
@@ -142,28 +146,26 @@ fun UserProfile(
         showDialog = showDeletionConfirmation,
         confirmationText = confirmationText,
         showError = showDeleteConfirmationError,
-        onDelete = { _, _ -> // Note: Adjusted to match (Boolean, String?) -> Unit
+        onDelete = {
+            //If confirmation text matches we attempt to delete
             if (confirmationText.value == "Delete Account") {
                 viewModel.initiateAccountDeletion { deletionSuccess, errorMessage ->
                     if (deletionSuccess) {
                         showToast(context, "Account successfully deleted.")
                         viewModel.signOut()
-                        // Optionally reset states or navigate away since the account is deleted.
                     } else {
                         showToast(
                             context,
                             errorMessage ?: "Failed to delete account. Please try again."
                         )
                     }
-                    // Assuming you want to close the dialog regardless of the outcome.
-                    showDeletionConfirmation.value = false
                 }
+                showDeletionConfirmation.value = false
             } else {
                 showToast(
                     context,
                     "Confirmation text does not match. Please type exactly \"Delete Account\" to confirm."
                 )
-                // Do not close the dialog automatically in case of text mismatch; allow the user to correct it.
             }
         }
     )

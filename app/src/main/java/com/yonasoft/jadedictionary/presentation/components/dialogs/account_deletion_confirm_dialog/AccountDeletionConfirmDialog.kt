@@ -1,6 +1,5 @@
 package com.yonasoft.jadedictionary.presentation.components.dialogs.account_deletion_confirm_dialog
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -19,7 +18,7 @@ fun AccountDeletionConfirmDialog(
     showDialog: MutableState<Boolean>,
     confirmationText: MutableState<String>,
     showError:MutableState<Boolean>,
-    onDelete: (Boolean, String?) -> Unit
+    onDelete: () -> Unit
 ) {
 
     if (showDialog.value) {
@@ -55,12 +54,12 @@ fun AccountDeletionConfirmDialog(
                 Button(
                     onClick = {
                         if (confirmationText.value == "Delete Account") {
-                            onDelete(true, null) // Now correctly passing both parameters
-                            showDialog.value = false // Close dialog on attempt, handle result in ViewModel
-                            confirmationText.value = "" // Reset confirmation text
-                            showError.value = false // Reset error
+                            onDelete()
+                            showDialog.value = false
+                            confirmationText.value = ""
+                            showError.value = false
                         } else {
-                            showError.value = true // Show error when confirmation text doesn't match
+                            showError.value = true
                         }
                     }
                 ) {

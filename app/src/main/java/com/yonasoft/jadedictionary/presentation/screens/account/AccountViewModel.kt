@@ -137,24 +137,30 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun initiateAccountDeletion(onComplete: (Boolean, String?) -> Unit) {
+    fun initiateAccountDeletion(onComplete: ((Boolean, String?) -> Unit?)? = null) {
         viewModelScope.launch {
             val result = firebaseAuthRepository.deleteUserAccount()
             if (result.isSuccess) {
-                showToast(context, "Account successfully deleted.", Toast.LENGTH_LONG)
-                onComplete(true, null)
+                if (!currentUser.value!!.isAnonymous) showToast(
+                    context,
+                    "Account successfully deleted.",
+                    Toast.LENGTH_LONG
+                )
             } else {
                 val exception = result.exceptionOrNull()
                 if (exception is FirebaseAuthRecentLoginRequiredException) {
                     showToast(context, "Please re-login to delete your account.", Toast.LENGTH_LONG)
-                    onComplete(false, "Please re-login to delete your account.")
+                    if (onComplete != null) onComplete(
+                        false,
+                        "Please re-login to delete your account."
+                    )
                 } else {
                     showToast(
                         context,
                         exception?.message ?: "An error occurred during account deletion.",
                         Toast.LENGTH_LONG
                     )
-                    onComplete(false, exception?.message)
+                    if (onComplete != null) onComplete(false, exception?.message)
                 }
             }
         }
