@@ -71,12 +71,13 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
+
 @Composable
 fun JadeDictionaryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     content: @Composable () -> Unit
 ) {
+
     MaterialTheme(
         typography = Typography,
         content = content,

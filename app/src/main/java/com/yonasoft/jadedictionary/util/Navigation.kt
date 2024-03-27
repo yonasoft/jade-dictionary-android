@@ -14,13 +14,14 @@ import com.yonasoft.jadedictionary.presentation.screens.lists.add_word_list_scre
 import com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail.WordListDetailScreen
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeScreen
 import com.yonasoft.jadedictionary.presentation.screens.search.SearchScreen
+import com.yonasoft.jadedictionary.presentation.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetupNavigation(navController: NavHostController){
     NavHost(navController = navController, startDestination = Screen.Search.route ){
         composable(Screen.Search.route){
-            SearchScreen()
+            SearchScreen(navController = navController)
         }
         composable(Screen.Lists.route){
             ListsScreen(navController = navController)
@@ -43,6 +44,9 @@ fun SetupNavigation(navController: NavHostController){
         }
         composable(Screen.Account.route){
             AccountScreen(navController = navController)
+        }
+        composable(Screen.Settings.route){
+            SettingsScreen(navController = navController)
         }
     }
 }

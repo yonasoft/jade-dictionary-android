@@ -14,6 +14,7 @@ import com.google.firebase.firestore.ktx.persistentCacheSettings
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.yonasoft.jadedictionary.data.datastore.StoreSearchHistory
+import com.yonasoft.jadedictionary.data.datastore.StoreSettings
 import com.yonasoft.jadedictionary.data.db.word.WordDatabase
 import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
@@ -78,6 +79,12 @@ internal object AppModule {
     @Singleton
     fun provideStoreSearchHistory(@ApplicationContext context: Context): StoreSearchHistory {
         return StoreSearchHistory(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStoreSettings(@ApplicationContext context: Context): StoreSettings {
+        return  StoreSettings(context)
     }
 
     @Provides

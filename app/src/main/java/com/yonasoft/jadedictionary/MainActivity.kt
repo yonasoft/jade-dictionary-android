@@ -3,6 +3,7 @@ package com.yonasoft.jadedictionary
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
@@ -11,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.yonasoft.jadedictionary.data.constants.NavItems
+import com.yonasoft.jadedictionary.data.datastore.StoreSettings
 import com.yonasoft.jadedictionary.data.models.NavigationItem
 import com.yonasoft.jadedictionary.presentation.components.appbar.JadeAppBar
 import com.yonasoft.jadedictionary.presentation.components.drawer.JadeModalDrawerSheet
@@ -26,20 +29,32 @@ import com.yonasoft.jadedictionary.ui.theme.JadeDictionaryTheme
 import com.yonasoft.jadedictionary.util.SetupNavigation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var storeSettings: StoreSettings
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            JadeDictionaryTheme {
-                JadeDictionaryApp()
-            }
+            AppContent(storeSettings)
         }
     }
-
 }
 
+@Composable
+fun AppContent(storeSettings: StoreSettings) {
+    val useSystemTheme by storeSettings.isSystemTheme.collectAsState(initial = true)
+    val isDarkMode by storeSettings.isDarkMode.collectAsState(initial = true)
+    val systemInDarkTheme = isSystemInDarkTheme()
+
+    JadeDictionaryTheme(darkTheme = if (useSystemTheme) systemInDarkTheme else isDarkMode) {
+        JadeDictionaryApp()
+    }
+}
 @Composable
 fun JadeDictionaryApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -87,4 +102,3 @@ fun JadeDictionaryApp() {
         }
     }
 }
-

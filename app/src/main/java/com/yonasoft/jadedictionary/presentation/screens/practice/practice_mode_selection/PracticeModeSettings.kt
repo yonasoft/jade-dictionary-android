@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yonasoft.jadedictionary.data.constants.PracticeMode
@@ -76,7 +77,7 @@ fun PracticeModeSettings(
                 Text(
                     text = "Select Practice Mode",
                     style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    fontWeight = FontWeight.Bold,
                 )
                 sharedViewModel.modes.forEach { mode ->
                     PracticeModeCard(
