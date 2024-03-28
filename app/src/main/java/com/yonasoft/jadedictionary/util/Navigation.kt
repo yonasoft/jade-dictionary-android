@@ -15,6 +15,9 @@ import com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail.W
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeScreen
 import com.yonasoft.jadedictionary.presentation.screens.search.SearchScreen
 import com.yonasoft.jadedictionary.presentation.screens.settings.SettingsScreen
+import com.yonasoft.jadedictionary.presentation.screens.support.SupportScreen
+import com.yonasoft.jadedictionary.presentation.screens.support.contact.ContactUsScreen
+import com.yonasoft.jadedictionary.presentation.screens.support.donate.DonateScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +50,21 @@ fun SetupNavigation(navController: NavHostController){
         }
         composable(Screen.Settings.route){
             SettingsScreen(navController = navController)
+        }
+        composable(Screen.Support.route){
+           SupportScreen(navController = navController)
+        }
+        composable(Screen.FAQ.route){
+            SupportScreen(navController = navController)
+        }
+        composable(Screen.Contact.route){
+            ContactUsScreen(navController = navController)
+        }
+        composable(Screen.Account.route){
+            SupportScreen(navController = navController)
+        }
+        composable(Screen.Donate.route){
+            DonateScreen(navController = navController)
         }
     }
 }

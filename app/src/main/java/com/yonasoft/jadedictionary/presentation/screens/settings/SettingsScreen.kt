@@ -58,6 +58,7 @@ fun SettingsScreen(
             onToggleDarkMode = { viewModel.changeDarkMode(it) },
             enabled = !useSystemTheme.value // Disable this row if system theme is used
         )
+        Divider(modifier = Modifier.height(1.dp))
     }
 }
 
@@ -79,7 +80,6 @@ fun SystemThemeRow(
             onCheckedChange = { changeUseSystemTheme(it) }
         )
     }
-    Divider(modifier = Modifier.height(1.dp))
 }
 
 @Composable
