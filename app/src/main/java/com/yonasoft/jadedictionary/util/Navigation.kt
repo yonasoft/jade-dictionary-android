@@ -60,9 +60,6 @@ fun SetupNavigation(navController: NavHostController){
         composable(Screen.Contact.route){
             ContactUsScreen(navController = navController)
         }
-        composable(Screen.Account.route){
-            SupportScreen(navController = navController)
-        }
         composable(Screen.Donate.route){
             DonateScreen(navController = navController)
         }
