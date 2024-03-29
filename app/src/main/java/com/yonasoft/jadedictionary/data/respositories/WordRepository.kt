@@ -4,8 +4,9 @@ import android.util.Log
 import com.yonasoft.jadedictionary.data.constants.StringType
 import com.yonasoft.jadedictionary.data.db.word.WordDAO
 import com.yonasoft.jadedictionary.data.models.Word
-import com.yonasoft.jadedictionary.util.determineStringType
-import com.yonasoft.jadedictionary.util.normalizePinyinInput
+import com.yonasoft.jadedictionary.util.WordUtil.determineStringType
+import com.yonasoft.jadedictionary.util.WordUtil.normalizePinyinInput
+
 import kotlinx.coroutines.flow.Flow
 
 class WordRepository(private val dao: WordDAO) {

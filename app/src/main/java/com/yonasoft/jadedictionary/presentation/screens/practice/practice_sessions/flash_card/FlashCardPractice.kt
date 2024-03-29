@@ -37,7 +37,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.yonasoft.jadedictionary.data.constants.StringType
 import com.yonasoft.jadedictionary.data.models.Word
-import com.yonasoft.jadedictionary.util.extractStringFromWord
+import com.yonasoft.jadedictionary.util.WordUtil.extractStringFromWord
 
 @Composable
 fun FlashCardPractice(
