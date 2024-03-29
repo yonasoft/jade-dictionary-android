@@ -3,6 +3,7 @@ package com.yonasoft.jadedictionary.data.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.yonasoft.jadedictionary.util.WordUtil
 
 @Entity(tableName = "words")
 data class Word(
@@ -12,4 +13,8 @@ data class Word(
     @ColumnInfo(name = "traditional") val traditional: String? = null,
     @ColumnInfo(name = "pinyin") val pinyin: String? = null,
     @ColumnInfo(name = "definition") val definition: String? = null
-)
+){
+    fun getAccentedPinyin(): String {
+        return WordUtil.convertNumberedPinyin(pinyin ?: "")
+    }
+}

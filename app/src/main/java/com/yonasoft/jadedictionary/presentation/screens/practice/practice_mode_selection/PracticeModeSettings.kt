@@ -54,6 +54,7 @@ fun PracticeModeSettings(
 ) {
 
     val context = LocalContext.current
+    val modes = PracticeMode.modes
     val isQuizTypeSelected = sharedViewModel.quizType.value.isNotEmpty()
 
     LaunchedEffect(sharedViewModel.quizType.value){
@@ -79,12 +80,12 @@ fun PracticeModeSettings(
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                 )
-                sharedViewModel.modes.forEach { mode ->
+                modes.forEach { mode ->
                     PracticeModeCard(
                         practiceMode = mode,
-                        isSelected = sharedViewModel.practiceMode.value == mode,
+                        isSelected = sharedViewModel.selectedModes.value == mode,
                         onSelected = { selectedMode ->
-                            sharedViewModel.practiceMode.value = selectedMode
+                            sharedViewModel.selectedModes.value = selectedMode
                         }
                     )
                 }

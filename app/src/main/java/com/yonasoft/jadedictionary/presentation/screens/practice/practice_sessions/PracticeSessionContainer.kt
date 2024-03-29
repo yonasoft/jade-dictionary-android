@@ -32,7 +32,7 @@ fun PracticeSessionContainer(
     sharedViewModel: PracticeSharedViewModel = hiltViewModel(),
 ) {
     val screen = sharedViewModel.screen
-    val practiceMode = sharedViewModel.practiceMode
+    val practiceMode = sharedViewModel.selectedModes
     val wordIndex = sharedViewModel.wordIndex
     val practiceWords = sharedViewModel.practiceWords
     val isStopwatch = sharedViewModel.isStopwatch

@@ -32,7 +32,7 @@ fun PracticeResultsScreen(
 ) {
 
 
-    val practiceMode = sharedViewModel.practiceMode.value.title
+    val practiceMode = sharedViewModel.selectedModes.value.title
 
     val isStopwatch = sharedViewModel.isStopwatch
     val totalTime = sharedViewModel.stopwatchTime.longValue // Stopwatch time in milliseconds

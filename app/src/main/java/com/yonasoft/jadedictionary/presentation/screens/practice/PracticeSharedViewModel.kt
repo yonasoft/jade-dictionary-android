@@ -39,10 +39,9 @@ class PracticeSharedViewModel @Inject constructor(
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
     //Settings
-    val modes = listOf(PracticeMode.FlashCards, PracticeMode.MultipleChoice)
     val isStopwatch = mutableStateOf(false)
     val timerDuration = mutableStateOf<TimerDuration>(TimerDuration.None)
-    val practiceMode = mutableStateOf<PracticeMode>(PracticeMode.FlashCards)
+    val selectedModes = mutableStateOf<PracticeMode>(PracticeMode.FlashCards)
     val quizType = mutableStateOf<MutableList<QuizType>>(mutableListOf(QuizType.HanziDefinition))
 
     //Word adding

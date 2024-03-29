@@ -22,8 +22,6 @@ object Practice {
                     )
 
                 }
-
-
             }
             "Easy", "Correct" -> {
                 @Composable {

@@ -66,11 +66,10 @@ object WordUtil {
         val hanzi = word.simplified + if (word.traditional != null) "(${word.traditional})" else ""
         return when (stringType) {
             StringType.English -> word.definition ?: ""
-            StringType.Pinyin -> convertNumberedPinyin(word.pinyin ?: "")
+            StringType.Pinyin -> word.getAccentedPinyin()
             StringType.Hanzi -> hanzi
         }
     }
-
     fun convertNumberedPinyin(pinyin: String): String {
         val toneMarks = mapOf(
             'a' to arrayOf("a", "ā", "á", "ǎ", "à", "a"),
@@ -87,26 +86,24 @@ object WordUtil {
             for (vowel in order) {
                 if (vowel in syllable) return vowel
             }
-            return ' ' // Fallback, should not happen
+            return ' '
         }
 
         fun convertSyllable(syllable: String): String {
-            val toneNumber = syllable.takeLast(1).toString().toIntOrNull() ?: return syllable.dropLast(1)
-            if (toneNumber !in 1..5) return syllable // Check for valid tone numbers
+            val toneNumber = syllable.takeLast(1).toIntOrNull() ?: return syllable.dropLast(1)
+            if (toneNumber !in 1..5) return syllable
 
-            if (toneNumber == 5) return syllable.dropLast(1) // Handle neutral tone by removing the number
+            if (toneNumber == 5) return syllable.dropLast(1)
 
-            val baseSyllable = syllable.dropLast(1) // Remove the tone number for processing
+            val baseSyllable = syllable.dropLast(1)
             val vowelToMark = primaryVowel(baseSyllable)
 
-            // Replace the primary vowel with its accented version for tones 1-4
             return baseSyllable.map { char ->
                 if (char == vowelToMark) toneMarks[char]?.get(toneNumber - 1) ?: char.toString()
                 else char.toString()
             }.joinToString("")
         }
 
-        // Process each syllable in the input string, separating by spaces
         return pinyin.split(" ").joinToString(" ") { syllable ->
             convertSyllable(syllable)
         }
