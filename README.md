@@ -10,7 +10,7 @@ GitHub (Web): https://github.com/KevC000/jade-dictionary-web
 ## Contents
 
  1. [Introduction](#intro)
- 2. [Technologies](#technologies)
+ 2. [Technologies and Resources](#technologies)
  3. [Features & Screenshots](#screenshots)
 
 ## Introduction
@@ -32,11 +32,11 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 ### Resources
 - [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) is the source of word data
 
-## Screenshots
+## Features Screenshots
 
 **Search Words**
 <br/>
-<a href="https://ibb.co/RzZdMcV"><img src="https://i.ibb.co/GcBN1Rb/search.jpg" alt="search" border="0"></a>
+<a href="https://ibb.co/RzZdMcV"><img src="https://i.ibb.co/RzZdMcV/search.jpg" alt="search" border="0"></a>
 <br/>
 **Save Words to Lists**
 <a href="https://ibb.co/tc5nbV1"><img src="https://i.ibb.co/ft7ZCjT/lists.jpg" alt="lists" border="0"></a>
