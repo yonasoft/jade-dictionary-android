@@ -38,10 +38,12 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 <br/>
 <a href="https://ibb.co/RzZdMcV"><img src="https://i.ibb.co/GcBN1Rb/search.jpg" alt="search" border="0"></a>
 <br/>
+
 ### Save Words to Lists
 <br/>
 <a href="https://ibb.co/tc5nbV1"><img src="https://i.ibb.co/ft7ZCjT/lists.jpg" alt="lists" border="0"></a>
 <br/>
+
 ### Practice Words
 <br/>
 <a href="https://ibb.co/6YvvMSf"><img src="https://i.ibb.co/tBZZG6W/p1.jpg" alt="p1" border="0"></a>
