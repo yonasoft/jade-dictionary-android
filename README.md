@@ -36,7 +36,7 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 
 **Search Words**
 <br/>
-<a href="https://ibb.co/RzZdMcV"><img src="https://i.ibb.co/cDMVpQ7/search.jpg" alt="search" border="0"></a>
+<a href="https://ibb.co/RzZdMcV"><img src="https://i.ibb.co/GcBN1Rb/search.jpg" alt="search" border="0"></a>
 <br/>
 **Save Words to Lists**
 <a href="https://ibb.co/tc5nbV1"><img src="https://i.ibb.co/ft7ZCjT/lists.jpg" alt="lists" border="0"></a>
