@@ -23,11 +23,12 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 
 - **Kotlin**
 -    Coded UI with  **Jetpack Compose**
--   **Room**  and  **Datastore**  for local persistent data.
--   **Coil**  for image loading.
--   **Dagger-Hilt**  for dependency injection.
+-   **Room**  and  **Datastore**  for local persistent data
+-   **Coil**  for image loading
+-   **Dagger-Hilt**  for dependency injection
+-   **Gson** for data serialization
 -   **Git** for version control
--   **Firebase** Authentication, user account management, data and file storage.
+-   **Firebase** Authentication, user account management, data and file storage
   
 ### Resources
 - [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) is the source of word data
