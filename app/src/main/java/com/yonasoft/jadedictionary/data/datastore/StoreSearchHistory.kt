@@ -17,11 +17,9 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore("searchHis
 
 class StoreSearchHistory(private val context: Context) {
     private val gson = Gson()
-
     companion object {
         val SEARCH_HISTORY_KEY = stringPreferencesKey("search_history")
     }
-
     suspend fun storeSearchHistory(list: List<String>) {
         val jsonString = gson.toJson(list)
         context.dataStore.edit { preferences ->
@@ -29,7 +27,7 @@ class StoreSearchHistory(private val context: Context) {
         }
     }
 
-    val searchHistory: Flow<List<String>> = context.dataStore.data
+    private val searchHistory: Flow<List<String>> = context.dataStore.data
         .map { preferences ->
             val jsonString = preferences[SEARCH_HISTORY_KEY] ?: ""
             return@map if (jsonString.isNotEmpty()) {

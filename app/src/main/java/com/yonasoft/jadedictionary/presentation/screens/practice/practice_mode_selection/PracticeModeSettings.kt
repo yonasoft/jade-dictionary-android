@@ -54,7 +54,7 @@ fun PracticeModeSettings(
 ) {
 
     val context = LocalContext.current
-    val modes = PracticeMode.modes
+    val modes = listOf(PracticeMode.FlashCards, PracticeMode.MultipleChoice)
     val isQuizTypeSelected = sharedViewModel.quizType.value.isNotEmpty()
 
     LaunchedEffect(sharedViewModel.quizType.value){
