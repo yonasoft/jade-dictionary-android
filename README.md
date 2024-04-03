@@ -16,12 +16,12 @@ GitHub: https://github.com/KevC000/jade-dictionary-web
  2. [Technologies and Resources](#technologies)
  3. [Features & Screenshots](#screenshots)
 
-## Introduction
+## <a id="intro">Introduction </a>
 
 ### What is Jade Dictionary?
 A bilingual Chinese-English dictionary Android and web app with a database of over 120,000 words. Users can improve vocabulary retention with practice modules to practice words through flashcards or quizzes. User word lists can also be synchronized across different devices and platforms.
 
-## Technologies and Resources
+## <a id="technologies">Technologies and Resources </a>
 ### Technologies
 
 - **Kotlin**
@@ -36,7 +36,7 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 ### Resources
 - [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) word data source
 
-## Features and Screenshots
+## <a id="screenshots">Features and Screenshots </a>
 
 ### Search Words
 <br/>
