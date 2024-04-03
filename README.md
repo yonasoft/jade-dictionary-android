@@ -9,7 +9,7 @@ Play Store: (Currently Under Review)
 ### For Web:
 Website: https://jadedictionary.com/
 <br/>
-GitHub (Web): https://github.com/KevC000/jade-dictionary-web
+GitHub: https://github.com/KevC000/jade-dictionary-web
 ## Contents
 
  1. [Introduction](#intro)
