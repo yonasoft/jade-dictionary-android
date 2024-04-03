@@ -4,6 +4,8 @@
 
  [![image](https://i.ibb.co/XDT9C6t/jadelogo.png)](https://jadedictionary.com/) 
 
+Play Store: (Currently Under Review)
+<br/>
 Website: https://jadedictionary.com/
 <br/>
 GitHub (Web): https://github.com/KevC000/jade-dictionary-web
