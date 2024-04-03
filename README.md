@@ -16,7 +16,7 @@ GitHub (Web): https://github.com/KevC000/jade-dictionary-web
 ## Introduction
 
 ### What is Jade Dictionary?
-A bilingual Chinese-English dictionary Android and web app with a database of over 120,000 words, with practice modules and word-saving features.
+A bilingual Chinese-English dictionary Android and web app with a database of over 120,000 words. Users can improve vocabulary retention with practice modules to practice words through flashcards or quizzes. User word lists can also be synchronized across different devices and platforms.
 
 ## Technologies and Resources
 ### Technologies
@@ -31,7 +31,7 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 -   **Firebase** Authentication, user account management, data and file storage
   
 ### Resources
-- [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) is the source of word data
+- [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) word data source
 
 ## Features and Screenshots
 
