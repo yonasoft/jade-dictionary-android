@@ -16,6 +16,7 @@ import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.presentation.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,7 +55,7 @@ class AccountViewModel @Inject constructor(
 
     init {
         firebaseAuthRepository.getAuth().addAuthStateListener {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 val user = it.currentUser
                 if (user != null) {
                     auth.value = it
@@ -76,7 +77,7 @@ class AccountViewModel @Inject constructor(
         newPhoto: Uri? = selectedImage.value,
         onCheckComplete: (Boolean) -> Unit,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
                 viewModelScope.launch {
                     onCheckComplete(exists)
@@ -94,29 +95,33 @@ class AccountViewModel @Inject constructor(
     }
 
     private fun validatePassword(password: String, confirmPassword: String): String? {
-        if (password.isEmpty() || confirmPassword.isEmpty()) {
-            return "Password cannot be empty."
-        }
-        if (password.length < 8) {
-            return "Password must be at least 8 characters long."
-        }
-        if (!password.any { it.isDigit() } || !password.any { it.isLetter() }) {
-            return "Password must contain both letters and numbers."
-        }
-        if (password != confirmPassword) {
-            return "Passwords do not match."
-        }
-        return null // null indicates no error
+
+            if (password.isEmpty() || confirmPassword.isEmpty()) {
+                return "Password cannot be empty."
+            }
+            if (password.length < 8) {
+                return "Password must be at least 8 characters long."
+            }
+            if (!password.any { it.isDigit() } || !password.any { it.isLetter() }) {
+                return "Password must contain both letters and numbers."
+            }
+            if (password != confirmPassword) {
+                return "Passwords do not match."
+            }
+            return null // null indicates no error
+
     }
 
     fun savePassword() {
         passwordError.value = validatePassword(password.value, confirmPassword.value)
         if (passwordError.value == null) {
-            firebaseAuthRepository.updatePassword(password.value) { success, errorMessage ->
-                if (success) {
-                    showToast(context, "Password updated successfully")
-                } else {
-                    showToast(context, errorMessage ?: "Failed to update password")
+            viewModelScope.launch(Dispatchers.IO) {
+                firebaseAuthRepository.updatePassword(password.value) { success, errorMessage ->
+                    if (success) {
+                        showToast(context, "Password updated successfully")
+                    } else {
+                        showToast(context, errorMessage ?: "Failed to update password")
+                    }
                 }
             }
         }
@@ -127,7 +132,7 @@ class AccountViewModel @Inject constructor(
             showToast(context, "Please enter your email address.")
             return
         }
-
+        viewModelScope.launch(Dispatchers.IO) {
         firebaseAuthRepository.sendPasswordResetEmail(email) { success, message ->
             if (success) {
                 showToast(context, "Reset link sent to your email.")
@@ -136,9 +141,10 @@ class AccountViewModel @Inject constructor(
             }
         }
     }
+    }
 
     fun initiateAccountDeletion(onComplete: ((Boolean, String?) -> Unit?)? = null) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = firebaseAuthRepository.deleteUserAccount()
             if (result.isSuccess) {
                 if (!currentUser.value!!.isAnonymous) showToast(
@@ -171,7 +177,8 @@ class AccountViewModel @Inject constructor(
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 Log.d("sign_in", "Attempting to add user to Firestore.")
-                firebaseAuthRepository.addUserToFirestore(user)
+                viewModelScope.launch(Dispatchers.IO){
+                firebaseAuthRepository.addUserToFirestore(user)}
             } else {
                 Log.d("sign_in", "User is null after sign in.")
             }
@@ -181,7 +188,7 @@ class AccountViewModel @Inject constructor(
     }
 
     fun signInAnonymously() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 FirebaseAuth.getInstance().signInAnonymously()
                     .addOnCompleteListener { task ->
@@ -199,7 +206,7 @@ class AccountViewModel @Inject constructor(
     }
 
     fun signOut() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val success = firebaseAuthRepository.signOut(context) {
                     showToast(context, "Signed out!")

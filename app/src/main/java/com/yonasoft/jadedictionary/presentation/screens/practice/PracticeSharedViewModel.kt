@@ -18,11 +18,13 @@ import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -69,7 +71,7 @@ class PracticeSharedViewModel @Inject constructor(
 
     init {
         firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 _isLoggedIn.value = auth.currentUser != null
                 if (auth.currentUser != null) {
                     getAllWordList()
@@ -81,16 +83,16 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     fun addFromWordList(wordList: WordList) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             val newWordIds = mutableSetOf<Long>()
             val newPracticeWords = mutableListOf<Word>()
 
             newWordIds.addAll(wordIds.value)
             newPracticeWords.addAll(practiceWords.value)
 
-            val wordListWordsIds = wordList.wordIds
-            newWordIds.addAll(wordListWordsIds)
-            newPracticeWords.addAll(fetchWordsFromListIds(wordListWordsIds))
+            val wordListWordIds = wordList.wordIds
+            newWordIds.addAll(wordListWordIds)
+            newPracticeWords.addAll(fetchWordsFromListIds(wordListWordIds))
 
             wordIds.value = newWordIds
             practiceWords.value = newPracticeWords
@@ -99,7 +101,7 @@ class PracticeSharedViewModel @Inject constructor(
 
     fun addWord(word: Word) {
         if (word.id in wordIds.value) return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             val newWordIds = mutableSetOf<Long>()
             val newPracticeWords = mutableListOf<Word>()
 
@@ -115,7 +117,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     fun removeWordFromPractice(word: Word) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             val newWordIds = mutableSetOf<Long>()
             val newPracticeWords = mutableListOf<Word>()
 
@@ -132,7 +134,7 @@ class PracticeSharedViewModel @Inject constructor(
 
     private fun getAllWordList() {
         if (firebaseAuthRepository.getAuth().currentUser != null) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 wordListRepository.getWordLists().collect { lists ->
                     _wordLists.value = lists
                 }
@@ -141,18 +143,22 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private suspend fun fetchWordsFromListIds(words: List<Long>): List<Word> {
-        val res = mutableListOf<Word>()
-        words.forEach {
-            if (it !in wordIds.value) {
-                val word = wordRepository.fetchWordById(it)!!
-                res.add(word)
+        return withContext(Dispatchers.IO) {
+            val res = mutableListOf<Word>()
+            words.forEach { id ->
+                if (id !in wordIds.value) {
+                    wordRepository.fetchWordById(id)?.let { word ->
+                        res.add(word)
+                    }
+                }
             }
+            res
         }
-        return res
     }
 
+
     fun onSearchWord(query: String = wordSearchQuery.value) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             wordRepository.searchWord(query).collect { words ->
                 searchResults.value = words
             }
@@ -160,7 +166,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     fun startStopwatch() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             val startTime =
                 System.currentTimeMillis() - stopwatchTime.longValue
             isStopwatchRunning.value = true
@@ -180,7 +186,7 @@ class PracticeSharedViewModel @Inject constructor(
         canNext.value = false
         timerRunning.value = true
         timerTime.longValue = totalTime
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             var timeLeft = totalTime
             while (timeLeft > 0 && timerRunning.value) {
                 delay(1000) // Decrease every second
@@ -193,26 +199,33 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     private fun pauseTimer() {
-        timerRunning.value = false
+        viewModelScope.launch(Dispatchers.Main) {
+            timerRunning.value = false
+        }
     }
 
     fun resetTimer() {
-        pauseTimer()
-        timerTime.longValue = timerDuration.value.durationInMillis ?: 0L
+        viewModelScope.launch(Dispatchers.Main) {
+            pauseTimer()
+            timerTime.longValue = timerDuration.value.durationInMillis ?: 0L
+        }
     }
 
     private fun pauseStopwatch() {
-        isStopwatchRunning.value = false
+        viewModelScope.launch(Dispatchers.Main) {
+            isStopwatchRunning.value = false
+        }
     }
 
     fun resetStopwatch() {
-        // Resets the stopwatch to 0 and stops updating
-        pauseStopwatch() // First, make sure the stopwatch is paused
-        stopwatchTime.longValue = 0L // Reset the stopwatch time to 0
+        viewModelScope.launch(Dispatchers.Main) {
+            pauseStopwatch()
+            stopwatchTime.longValue = 0L
+        }
     }
 
     fun onBackFromWordSelect() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             practiceWords.value = mutableListOf()
             wordIds.value = mutableSetOf()
             screen.intValue -= 1
@@ -220,7 +233,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     fun onExitSession() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             resetTimer()
             resetStopwatch()
             canNext.value = false
@@ -234,7 +247,7 @@ class PracticeSharedViewModel @Inject constructor(
 
 
     fun randomizeQA() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             val randomQuizType = quizType.value.random()
             val answerQuestion =
                 listOf(randomQuizType.stringType1, randomQuizType.stringType2).shuffled()
@@ -248,7 +261,7 @@ class PracticeSharedViewModel @Inject constructor(
     }
 
     fun onAnswer(result: String, word: Word) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             if (result !in answers.value) {
                 answers.value[result] = mutableListOf()
             }
@@ -265,7 +278,7 @@ class PracticeSharedViewModel @Inject constructor(
             Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT).show()
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val wordId = word.id
             val newWordListIds = mutableListOf<Long>()
             newWordListIds.addAll(wordList.wordIds)

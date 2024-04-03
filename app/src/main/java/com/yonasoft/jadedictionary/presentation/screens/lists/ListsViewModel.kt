@@ -12,6 +12,7 @@ import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +51,7 @@ class ListsViewModel @Inject constructor(
     init {
         getHistory()
         firebaseAuthRepository.getAuth().addAuthStateListener { auth ->
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 _isLoggedIn.value = auth.currentUser != null
                 if (_isLoggedIn.value) {
                     // User is logged in, perform actions that require authentication
@@ -65,13 +66,13 @@ class ListsViewModel @Inject constructor(
     }
 
     private fun getHistory() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _history.value = storeSearchHistory.getSearchHistorySync()
         }
     }
 
     fun addToHistory(searchQuery: String = query.value) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val newHistory = mutableListOf<String>()
             newHistory.addAll(history.value)
             newHistory.add(0, searchQuery)
@@ -81,7 +82,7 @@ class ListsViewModel @Inject constructor(
     }
 
     fun removeFromHistory(index: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val newHistory = mutableListOf<String>()
             newHistory.addAll(history.value)
             newHistory.removeAt(index)
@@ -101,7 +102,7 @@ class ListsViewModel @Inject constructor(
 
     fun updateSortMethod(method: SortOption) {
         currentSortMethod.value = method
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val sortedLists = sortWordLists(_wordLists.value, method)
             _wordLists.value = sortedLists
         }
@@ -109,7 +110,7 @@ class ListsViewModel @Inject constructor(
 
     private fun getAllWordList() {
         if (_isLoggedIn.value) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 wordListRepository.getWordLists().collect { lists ->
                     _wordLists.value = lists
                 }
@@ -118,7 +119,7 @@ class ListsViewModel @Inject constructor(
     }
 
     fun searchWordLists(searchQuery: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // Assuming getAllWordLists() can handle search queries or replace with appropriate search function
             val updatedLists = wordListRepository.searchWordLists(searchQuery).first()
             _wordLists.value = updatedLists
@@ -127,7 +128,7 @@ class ListsViewModel @Inject constructor(
 
     fun addWordList(title: String = addTitle.value, description: String? = null) {
         if (_isLoggedIn.value) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 val userUid = firebaseAuthRepository.getAuth().currentUser?.uid ?: return@launch
                 val newWordList = WordList(
                     title = title,
@@ -144,10 +145,9 @@ class ListsViewModel @Inject constructor(
         }
     }
 
-
     fun deleteWordList(context: Context, wordList: WordList) {
         if (_isLoggedIn.value) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 wordListRepository.deleteWordList(wordList.firebaseId)
                 Toast.makeText(context, "Word List: ${wordList.title} removed", Toast.LENGTH_SHORT)
                     .show()

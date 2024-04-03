@@ -14,6 +14,7 @@ import com.yonasoft.jadedictionary.data.respositories.WordListRepository
 import com.yonasoft.jadedictionary.data.respositories.WordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -47,7 +48,7 @@ class SearchScreenViewModel @Inject constructor(
     init {
         getHistory()
         authRepository.getAuth().addAuthStateListener { auth ->
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 isLoggedIn.value = auth.currentUser != null
                 if (auth.currentUser != null) {
                     getWordLists()
@@ -60,13 +61,13 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     private fun getHistory() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _history.value = storeSearchHistory.getSearchHistorySync()
         }
     }
 
     fun addToHistory(query: String = searchQuery.value) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val newHistory = mutableListOf<String>()
             newHistory.addAll(history.value)
             newHistory.add(0, query)
@@ -76,7 +77,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     fun removeFromHistory(index: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val newHistory = mutableListOf<String>()
             newHistory.addAll(history.value)
             newHistory.removeAt(index)
@@ -86,7 +87,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     fun onSearch(query: String = searchQuery.value) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             wordRepository.searchWord(query).collect { words ->
                 _searchResults.value = words
                 Log.i("onSearch", words.toString())
@@ -96,7 +97,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun getWordLists() {
         if (authRepository.getAuth().currentUser == null) return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             wordListRepository.getWordLists().collect {
                 _wordLists.value = it
             }
@@ -109,7 +110,7 @@ class SearchScreenViewModel @Inject constructor(
             Toast.makeText(context, "Word already in list", Toast.LENGTH_SHORT).show()
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val wordId = word.id
             val newWordListIds = mutableListOf<Long>()
             newWordListIds.addAll(wordList.wordIds)
