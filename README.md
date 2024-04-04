@@ -4,7 +4,7 @@
 
  [![image](https://i.ibb.co/XDT9C6t/jadelogo.png)](https://jadedictionary.com/) 
 
-Play Store: (Currently Under Review)
+Play Store: https://play.google.com/store/apps/details?id=com.yonasoft.jadedictionary
 
 ### For Web:
 Website: https://jadedictionary.com/
