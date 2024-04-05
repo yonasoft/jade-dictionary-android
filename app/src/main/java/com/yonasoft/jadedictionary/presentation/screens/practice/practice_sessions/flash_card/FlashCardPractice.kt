@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.yonasoft.jadedictionary.data.constants.StringType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.StringType
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.util.WordUtil.extractStringFromWord
 

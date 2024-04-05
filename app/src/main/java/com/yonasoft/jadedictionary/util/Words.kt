@@ -1,6 +1,6 @@
 package com.yonasoft.jadedictionary.util
 
-import com.yonasoft.jadedictionary.data.constants.StringType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.StringType
 import com.yonasoft.jadedictionary.data.models.Word
 
 object WordUtil {

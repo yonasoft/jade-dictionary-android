@@ -178,7 +178,8 @@ class AccountViewModel @Inject constructor(
             if (user != null) {
                 Log.d("sign_in", "Attempting to add user to Firestore.")
                 viewModelScope.launch(Dispatchers.IO){
-                firebaseAuthRepository.addUserToFirestore(user)}
+                firebaseAuthRepository.addUserToFirestore(user)
+                }
             } else {
                 Log.d("sign_in", "User is null after sign in.")
             }

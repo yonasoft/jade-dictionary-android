@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.yonasoft.jadedictionary.data.constants.Screen
+import com.yonasoft.jadedictionary.data.constants_and_sealed.Screen
 import com.yonasoft.jadedictionary.presentation.screens.account.AccountScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.ListsScreen
 import com.yonasoft.jadedictionary.presentation.screens.lists.add_word_list_screen.AddWordListScreen

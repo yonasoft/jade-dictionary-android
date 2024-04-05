@@ -1,7 +1,7 @@
 package com.yonasoft.jadedictionary.data.respositories
 
 import android.util.Log
-import com.yonasoft.jadedictionary.data.constants.StringType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.StringType
 import com.yonasoft.jadedictionary.data.db.word.WordDAO
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.util.WordUtil.determineStringType

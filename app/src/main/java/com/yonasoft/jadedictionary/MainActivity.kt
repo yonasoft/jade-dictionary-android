@@ -20,7 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.yonasoft.jadedictionary.data.constants.NavItems
+import com.yonasoft.jadedictionary.data.constants_and_sealed.NavItems
 import com.yonasoft.jadedictionary.data.datastore.StoreSettings
 import com.yonasoft.jadedictionary.data.models.NavigationItem
 import com.yonasoft.jadedictionary.presentation.components.appbar.JadeAppBar

@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.data.constants
+package com.yonasoft.jadedictionary.data.constants_and_sealed
 
 sealed class StringType(val name:String) {
     data object Hanzi : StringType(name = "Hanzi")

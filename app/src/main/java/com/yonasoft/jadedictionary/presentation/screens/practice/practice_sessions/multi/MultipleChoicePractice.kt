@@ -21,7 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.yonasoft.jadedictionary.data.constants.StringType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.StringType
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.util.WordUtil.extractStringFromWord
 

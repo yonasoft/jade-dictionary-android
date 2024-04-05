@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.yonasoft.jadedictionary.data.constants.Screen
+import com.yonasoft.jadedictionary.data.constants_and_sealed.Screen
 
 val links =
     listOf(Screen.Contact, Screen.Donate)
