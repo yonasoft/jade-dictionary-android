@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.data.constants
+package com.yonasoft.jadedictionary.data.constants_and_sealed
 
 import com.yonasoft.jadedictionary.R
 

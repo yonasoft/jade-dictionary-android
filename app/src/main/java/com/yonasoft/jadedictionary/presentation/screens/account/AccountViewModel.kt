@@ -79,7 +79,7 @@ class AccountViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     onCheckComplete(exists)
                     if (!exists) {
                         firebaseAuthRepository.updateUserDisplayInfo(
@@ -178,7 +178,8 @@ class AccountViewModel @Inject constructor(
             if (user != null) {
                 Log.d("sign_in", "Attempting to add user to Firestore.")
                 viewModelScope.launch(Dispatchers.IO){
-                firebaseAuthRepository.addUserToFirestore(user)}
+                firebaseAuthRepository.addUserToFirestore(user)
+                }
             } else {
                 Log.d("sign_in", "User is null after sign in.")
             }

@@ -42,9 +42,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.yonasoft.jadedictionary.data.constants.PracticeMode
-import com.yonasoft.jadedictionary.data.constants.QuizType
-import com.yonasoft.jadedictionary.data.constants.TimerDuration
+import com.yonasoft.jadedictionary.data.constants_and_sealed.PracticeMode
+import com.yonasoft.jadedictionary.data.constants_and_sealed.QuizType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.TimerDuration
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeSharedViewModel
 
 @Composable

@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.data.constants
+package com.yonasoft.jadedictionary.data.constants_and_sealed
 
 sealed class Screen(val route: String, val name:String? = null) {
     data object Search : Screen(route = "search")

@@ -1,4 +1,4 @@
-package com.yonasoft.jadedictionary.data.constants
+package com.yonasoft.jadedictionary.data.constants_and_sealed
 
 sealed class TimerDuration(val time: String, val durationInMillis: Long?) {
     data object None: TimerDuration(time = "None", durationInMillis = null)

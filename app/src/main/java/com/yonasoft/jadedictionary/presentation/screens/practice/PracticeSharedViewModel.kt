@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yonasoft.jadedictionary.data.constants.PracticeMode
-import com.yonasoft.jadedictionary.data.constants.QuizType
-import com.yonasoft.jadedictionary.data.constants.TimerDuration
+import com.yonasoft.jadedictionary.data.constants_and_sealed.PracticeMode
+import com.yonasoft.jadedictionary.data.constants_and_sealed.QuizType
+import com.yonasoft.jadedictionary.data.constants_and_sealed.TimerDuration
 import com.yonasoft.jadedictionary.data.models.Word
 import com.yonasoft.jadedictionary.data.models.WordList
 import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
