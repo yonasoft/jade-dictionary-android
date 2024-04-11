@@ -4,21 +4,24 @@
 
  [![image](https://i.ibb.co/XDT9C6t/jadelogo.png)](https://jadedictionary.com/) 
 
+Play Store: https://play.google.com/store/apps/details?id=com.yonasoft.jadedictionary
+
+### For Web:
 Website: https://jadedictionary.com/
 <br/>
-GitHub (Web): https://github.com/KevC000/jade-dictionary-web
+GitHub: https://github.com/KevC000/jade-dictionary-web
 ## Contents
 
  1. [Introduction](#intro)
  2. [Technologies and Resources](#technologies)
  3. [Features & Screenshots](#screenshots)
 
-## Introduction
+## <a id="intro">Introduction </a>
 
 ### What is Jade Dictionary?
-A bilingual Chinese-English dictionary Android and web app with a database of over 120,000 words, with practice modules and word-saving features.
+A bilingual Chinese-English dictionary Android and web app with a database of over 120,000 words. Users can improve vocabulary retention with practice modules to practice words through flashcards or quizzes. User word lists can also be synchronized across different devices and platforms.
 
-## Technologies and Resources
+## <a id="technologies">Technologies and Resources </a>
 ### Technologies
 
 - **Kotlin**
@@ -31,9 +34,9 @@ A bilingual Chinese-English dictionary Android and web app with a database of ov
 -   **Firebase** Authentication, user account management, data and file storage
   
 ### Resources
-- [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) is the source of word data
+- [**CC-EDICT**](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) word data source
 
-## Features and Screenshots
+## <a id="screenshots">Features and Screenshots </a>
 
 ### Search Words
 <br/>
