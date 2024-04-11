@@ -85,6 +85,7 @@ class AccountViewModel @Inject constructor(
                             newDisplayName = newDisplayName,
                             newPhoto = newPhoto,
                         ) {
+                            displayNameField.value = currDisplayName.value
                             showToast(context = context, message = it)
                         }
                     }
