@@ -147,7 +147,6 @@ fun UserProfile(
         confirmationText = confirmationText,
         showError = showDeleteConfirmationError,
         onDelete = {
-            //If confirmation text matches we attempt to delete
             if (confirmationText.value == "Delete Account") {
                 viewModel.initiateAccountDeletion { deletionSuccess, errorMessage ->
                     if (deletionSuccess) {

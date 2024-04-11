@@ -60,11 +60,10 @@ class AccountViewModel @Inject constructor(
                 if (user != null) {
                     auth.value = it
                     currentUser.value = user
-                    Log.d("AuthStateListener", "Auth state changed. User: ${user?.uid}")
-                    currDisplayName.value = user?.displayName ?: ""
-                    currentImage.value = user?.photoUrl?.toString() ?: ""
+                    Log.d("AuthStateListener", "Auth state changed. User: ${user.uid}")
+                    currDisplayName.value = user.displayName ?: ""
+                    currentImage.value = user.photoUrl?.toString() ?: ""
                     Log.d("AuthStateListener", "User logged in: ${user.uid}")
-                    // Safely call addUserToFirestore method after user login is confirmed
                     firebaseAuthRepository.addUserToFirestore(user)
                 } else {
                 }

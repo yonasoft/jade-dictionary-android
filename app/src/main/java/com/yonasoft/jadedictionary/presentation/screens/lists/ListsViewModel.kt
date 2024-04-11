@@ -103,8 +103,7 @@ class ListsViewModel @Inject constructor(
     fun updateSortMethod(method: SortOption) {
         currentSortMethod.value = method
         viewModelScope.launch(Dispatchers.IO) {
-            val sortedLists = sortWordLists(_wordLists.value, method)
-            _wordLists.value = sortedLists
+            _wordLists.value = sortWordLists(_wordLists.value, method)
         }
     }
 
@@ -120,9 +119,7 @@ class ListsViewModel @Inject constructor(
 
     fun searchWordLists(searchQuery: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            // Assuming getAllWordLists() can handle search queries or replace with appropriate search function
-            val updatedLists = wordListRepository.searchWordLists(searchQuery).first()
-            _wordLists.value = updatedLists
+            _wordLists.value = wordListRepository.searchWordLists(searchQuery).first()
         }
     }
 
