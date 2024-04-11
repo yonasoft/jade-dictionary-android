@@ -60,11 +60,10 @@ class AccountViewModel @Inject constructor(
                 if (user != null) {
                     auth.value = it
                     currentUser.value = user
-                    Log.d("AuthStateListener", "Auth state changed. User: ${user?.uid}")
-                    currDisplayName.value = user?.displayName ?: ""
-                    currentImage.value = user?.photoUrl?.toString() ?: ""
+                    Log.d("AuthStateListener", "Auth state changed. User: ${user.uid}")
+                    currDisplayName.value = user.displayName ?: ""
+                    currentImage.value = user.photoUrl?.toString() ?: ""
                     Log.d("AuthStateListener", "User logged in: ${user.uid}")
-                    // Safely call addUserToFirestore method after user login is confirmed
                     firebaseAuthRepository.addUserToFirestore(user)
                 } else {
                 }
@@ -79,7 +78,7 @@ class AccountViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
                     onCheckComplete(exists)
                     if (!exists) {
                         firebaseAuthRepository.updateUserDisplayInfo(
@@ -140,7 +139,7 @@ class AccountViewModel @Inject constructor(
                 showToast(context, message ?: "Failed to send reset link.")
             }
         }
-    }
+     }
     }
 
     fun initiateAccountDeletion(onComplete: ((Boolean, String?) -> Unit?)? = null) {
