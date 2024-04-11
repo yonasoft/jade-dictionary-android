@@ -62,7 +62,7 @@ class FirebaseAuthRepository(
             if (user.photoUrl.toString().isNotEmpty()) {
                 deleteOldUserImage()
             }
-            photoUrl = uploadNewUserImage(newPhoto, onFail)!!
+            photoUrl = uploadNewUserImage(newPhoto)!!
             firestore.collection("users").document(user.uid).update(
                 mapOf(
                     "photoURL" to photoUrl,
@@ -147,8 +147,7 @@ class FirebaseAuthRepository(
 
 
     private suspend fun uploadNewUserImage(
-        newPhoto: Uri,
-        onFail: (message: String) -> Unit
+        newPhoto: Uri
     ): String? {
         val storageReference = FirebaseStorage.getInstance().reference
         val userUid = user?.uid ?: return null // Early return if user is null

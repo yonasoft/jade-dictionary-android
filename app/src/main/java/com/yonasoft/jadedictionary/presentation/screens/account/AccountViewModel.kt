@@ -74,12 +74,17 @@ class AccountViewModel @Inject constructor(
     fun updateDisplayInfo(
         newDisplayName: String? = displayNameField.value,
         newPhoto: Uri? = selectedImage.value,
-        onCheckComplete: (Boolean) -> Unit,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) { exists ->
-                viewModelScope.launch {
-                    onCheckComplete(exists)
+                viewModelScope.launch(Dispatchers.Main) {
+                    if (displayNameField.value.isNotEmpty() && displayNameField.value != currDisplayName.value) {
+                        val message =
+                            if (exists) "Display name already exists!" else "Display info successfully changed!"
+                        currDisplayName.value = displayNameField.value
+                        showToast(context = context, message = message)
+                    }
+                    isEditDisplayName.value = false
                     if (!exists) {
                         firebaseAuthRepository.updateUserDisplayInfo(
                             newDisplayName = newDisplayName,
