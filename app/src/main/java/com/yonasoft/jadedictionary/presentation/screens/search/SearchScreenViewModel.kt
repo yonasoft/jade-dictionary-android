@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
-    private val authRepository: FirebaseAuthRepository,
+    authRepository: FirebaseAuthRepository,
     private val wordRepository: WordRepository,
     private val wordListRepository: WordListRepository,
     private val storeSearchHistory: StoreSearchHistory,
@@ -63,9 +63,9 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun getHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            val retrievedHistory = storeSearchHistory.getSearchHistorySync() as MutableList<String>
+            val retrievedHistory = storeSearchHistory.getSearchHistorySync()
             withContext(Dispatchers.Main){
-                _history.value = retrievedHistory
+                _history.value = retrievedHistory.toMutableList()
             }
         }
     }
