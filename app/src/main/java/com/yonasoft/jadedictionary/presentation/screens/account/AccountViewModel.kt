@@ -27,7 +27,7 @@ class AccountViewModel @Inject constructor(
 ) :
     ViewModel() {
     val networkAvailable = mutableStateOf(true)
-    val auth = mutableStateOf<FirebaseAuth?>(null)
+    val auth = mutableStateOf<FirebaseAuth?>(firebaseAuthRepository.getAuth())
     val authUI = mutableStateOf(firebaseAuthRepository.getAuthUI())
     val showForgotPasswordDialog = mutableStateOf(false)
 
@@ -54,20 +54,9 @@ class AccountViewModel @Inject constructor(
     )
 
     init {
-        firebaseAuthRepository.getAuth().addAuthStateListener {
-            viewModelScope.launch(Dispatchers.IO) {
-                val user = it.currentUser
-                if (user != null) {
-                    auth.value = it
-                    currentUser.value = user
-                    Log.d("AuthStateListener", "Auth state changed. User: ${user.uid}")
-                    currDisplayName.value = user.displayName ?: ""
-                    currentImage.value = user.photoUrl?.toString() ?: ""
-                    Log.d("AuthStateListener", "User logged in: ${user.uid}")
-                    firebaseAuthRepository.addUserToFirestore(user)
-                } else {
-                }
-            }
+        auth.value!!.addAuthStateListener {
+            auth.value = it
+            currentUser.value = it.currentUser
         }
     }
 
@@ -178,18 +167,17 @@ class AccountViewModel @Inject constructor(
     }
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        val response = result.idpResponse
+        Log.d("signin", "got here...${response?.error}")
+        Log.d("signin", "got here...${result.resultCode}")
         if (result.resultCode == RESULT_OK) {
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
-                Log.d("sign_in", "Attempting to add user to Firestore.")
-                viewModelScope.launch(Dispatchers.IO){
-                firebaseAuthRepository.addUserToFirestore(user)
-                }
-            } else {
-                Log.d("sign_in", "User is null after sign in.")
-            }
+            currentUser.value = auth.value?.currentUser
+            Log.d("signin", currentUser.value!!.uid)
         } else {
-            Log.d("sign_in", "Sign in failed or cancelled.")
+            // Sign in failed. If response is null the user canceled the
+            // sign-in flow using the back button. Otherwise check
+            // response.getError().getErrorCode() and handle the error.
+            // ...
         }
     }
 

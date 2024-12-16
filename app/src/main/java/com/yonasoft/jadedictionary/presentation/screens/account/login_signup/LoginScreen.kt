@@ -1,6 +1,5 @@
 package com.yonasoft.jadedictionary.presentation.screens.account.login_signup
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,17 +23,15 @@ fun LoginScreen(
     navController: NavController,
     viewModel: AccountViewModel,
 ) {
-
     val context = LocalContext.current
+
     val providers = viewModel.providers
 
     val signInLauncher = rememberLauncherForActivityResult(
-        contract = FirebaseAuthUIActivityResultContract()
+        FirebaseAuthUIActivityResultContract(),
     ) { res ->
-        Log.d("sign_in", "start 2.5")
         viewModel.onSignInResult(res)
     }
-
     val signInIntent = AuthUI.getInstance()
         .createSignInIntentBuilder()
         .setAvailableProviders(providers)
@@ -50,24 +47,13 @@ fun LoginScreen(
     ) {
         Button(
             onClick = {
-                Log.d("sign_in", "start")
-                try {
-                    signInLauncher.launch(signInIntent)
-                    Log.d("sign_in", "start2")
-                } catch (e: Exception) {
-                    Log.e("sign_in", "Sign-in launch failed", e)
-                }
-            },
+                signInLauncher.launch(signInIntent)
+            }
         ) {
-            Text(
-                text = "Log in",
-                textAlign = TextAlign.Center
-            )
+            Text(text = "Log in", textAlign = TextAlign.Center)
         }
-        // In your LoginScreen Composable function
         Button(
             onClick = {
-                // Call the anonymous sign-in function
                 viewModel.signInAnonymously()
             },
         ) {
