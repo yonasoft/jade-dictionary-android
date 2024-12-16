@@ -31,11 +31,10 @@ fun UserProfile(
 
     val context = LocalContext.current
     val auth = viewModel.auth
-
+    val currentUser = auth.value!!.currentUser
+    val currDisplayName = viewModel.currDisplayName.value
     val isEditDisplayName = viewModel.isEditDisplayName
     val displayNameField = viewModel.displayNameField
-    val currDisplayName = viewModel.currDisplayName
-    val currentImage = viewModel.currentImage
     val selectedImage = viewModel.selectedImage
 
     val password = viewModel.password
@@ -80,8 +79,8 @@ fun UserProfile(
 
         UserDisplaySettingCard(
             isEditDisplayName = isEditDisplayName.value,
-            currentDisplayName = currDisplayName.value,
-            displayNameField = displayNameField.value,
+            currentDisplayName = currDisplayName,
+            displayNameField =  displayNameField.value,
             onDisplayNameFieldChange = {
                 displayNameField.value = it
             },
@@ -92,7 +91,7 @@ fun UserProfile(
             onEdit = {
                 isEditDisplayName.value = true
             },
-            currentImageLink = currentImage.value,
+            currentImageLink = currentUser!!.photoUrl.toString(),
             selectedImage = selectedImage.value,
             onInitiateUpload = {
                 launcher.launch(

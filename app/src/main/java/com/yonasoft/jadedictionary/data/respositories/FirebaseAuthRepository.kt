@@ -54,7 +54,6 @@ class FirebaseAuthRepository(
     suspend fun updateUserDisplayInfo(
         newDisplayName: String?,
         newPhoto: Uri?,
-        onFail: (message: String) -> Unit,
     ) {
         val displayName = if (newDisplayName.isNullOrEmpty()) user!!.displayName else newDisplayName
         var photoUrl = user!!.photoUrl.toString()
