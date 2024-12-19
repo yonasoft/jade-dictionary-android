@@ -11,27 +11,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.yonasoft.jadedictionary.R
 import com.yonasoft.jadedictionary.presentation.components.dialogs.forgot_password_dialog.ForgotPasswordDialog
 import com.yonasoft.jadedictionary.presentation.screens.account.AccountViewModel
+import com.yonasoft.jadedictionary.presentation.screens.shared.SharedAppViewModel
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    viewModel: AccountViewModel,
+    sharedAppViewModel: SharedAppViewModel,
+    accountViewModel: AccountViewModel,
 ) {
     val context = LocalContext.current
-
-    val providers = viewModel.providers
+    val providers = accountViewModel.providers
+    val sharedAppState = sharedAppViewModel.sharedAppState.collectAsStateWithLifecycle()
+    val auth = sharedAppState.value.auth
 
     val signInLauncher = rememberLauncherForActivityResult(
         FirebaseAuthUIActivityResultContract(),
     ) { res ->
-        viewModel.onSignInResult(res)
+        accountViewModel.onSignInResult(result = res, auth = auth!!) {
+            sharedAppViewModel.updateAuthState()
+        }
     }
+
     val signInIntent = AuthUI.getInstance()
         .createSignInIntentBuilder()
         .setAvailableProviders(providers)
@@ -54,18 +59,18 @@ fun LoginScreen(
         }
         Button(
             onClick = {
-                viewModel.signInAnonymously()
+                accountViewModel.signInAnonymously()
             },
         ) {
             Text(text = "Sign In Anonymously")
         }
 
         Button(onClick = {
-            viewModel.showForgotPasswordDialog.value = true
+            accountViewModel.showForgotPasswordDialog.value = true
         }) {
             Text(text = "Forgot Password?")
         }
     }
 
-    ForgotPasswordDialog(viewModel, viewModel.showForgotPasswordDialog, context)
+    ForgotPasswordDialog(accountViewModel, accountViewModel.showForgotPasswordDialog, context)
 }

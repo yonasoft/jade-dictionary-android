@@ -18,33 +18,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yonasoft.jadedictionary.presentation.components.account.account_deletion_card.AccountDeletionCard
 import com.yonasoft.jadedictionary.presentation.components.account.password_Setting_card.PasswordSettingCard
 import com.yonasoft.jadedictionary.presentation.components.account.user_display_setting_card.UserDisplaySettingCard
 import com.yonasoft.jadedictionary.presentation.components.dialogs.account_deletion_confirm_dialog.AccountDeletionConfirmDialog
 import com.yonasoft.jadedictionary.presentation.screens.account.AccountViewModel
+import com.yonasoft.jadedictionary.presentation.screens.shared.SharedAppViewModel
 
 @Composable
 fun UserProfile(
-    viewModel: AccountViewModel,
+    sharedAppViewModel: SharedAppViewModel,
+    accountViewModel: AccountViewModel,
 ) {
 
     val context = LocalContext.current
-    val auth = viewModel.auth
-    val currentUser = auth.value!!.currentUser
-    val currDisplayName = viewModel.currDisplayName.value
-    val isEditDisplayName = viewModel.isEditDisplayName
-    val displayNameField = viewModel.displayNameField
-    val selectedImage = viewModel.selectedImage
+    val sharedAppState = sharedAppViewModel.sharedAppState.collectAsStateWithLifecycle()
+    val auth = sharedAppState.value.auth
+    val currentUser = auth!!.currentUser
+    val currDisplayName = accountViewModel.currDisplayName.value
+    val isEditDisplayName = accountViewModel.isEditDisplayName
+    val displayNameField = accountViewModel.displayNameField
+    val selectedImage = accountViewModel.selectedImage
 
-    val password = viewModel.password
-    val confirmPassword = viewModel.confirmPassword
-    val passwordError = viewModel.passwordError
-    val passwordVisible = viewModel.passwordVisible
+    val password = accountViewModel.password
+    val confirmPassword = accountViewModel.confirmPassword
+    val passwordError = accountViewModel.passwordError
+    val passwordVisible = accountViewModel.passwordVisible
 
-    val showDeletionConfirmation = viewModel.showDeletionConfirmation
-    val confirmationText = viewModel.confirmationText
-    val showDeleteConfirmationError = viewModel.showDeleteConfirmationError
+    val showDeletionConfirmation = accountViewModel.showDeletionConfirmation
+    val confirmationText = accountViewModel.confirmationText
+    val showDeleteConfirmationError = accountViewModel.showDeleteConfirmationError
 
     rememberScrollState()
 
@@ -66,10 +70,12 @@ fun UserProfile(
         Button(
             modifier = Modifier,
             onClick = {
-                if(auth.value!!.currentUser!!.isAnonymous){
-                    viewModel.initiateAccountDeletion()
-                }else {
-                    viewModel.signOut()
+                if (auth.currentUser!!.isAnonymous) {
+                    accountViewModel.initiateAccountDeletion(auth = auth)
+                } else {
+                    accountViewModel.signOut {
+                        sharedAppViewModel.updateAuthState()
+                    }
                 }
             }) {
             Text(text = "Log out")
@@ -80,7 +86,7 @@ fun UserProfile(
         UserDisplaySettingCard(
             isEditDisplayName = isEditDisplayName.value,
             currentDisplayName = currDisplayName,
-            displayNameField =  displayNameField.value,
+            displayNameField = displayNameField.value,
             onDisplayNameFieldChange = {
                 displayNameField.value = it
             },
@@ -99,12 +105,12 @@ fun UserProfile(
                 )
             },
             onSave = {
-                viewModel.updateDisplayInfo()
+                accountViewModel.updateDisplayInfo(auth = auth)
             },
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        if (auth.value?.currentUser!=null && !auth.value?.currentUser!!.isAnonymous) {
+        if (!currentUser.isAnonymous) {
             PasswordSettingCard(
                 password = password.value,
                 confirmPassword = confirmPassword.value,
@@ -120,7 +126,7 @@ fun UserProfile(
                     passwordVisible.value = !passwordVisible.value
                 }
             ) {
-                viewModel.savePassword()
+                accountViewModel.savePassword()
             }
         }
 
@@ -139,10 +145,12 @@ fun UserProfile(
         showError = showDeleteConfirmationError,
         onDelete = {
             if (confirmationText.value == "Delete Account") {
-                viewModel.initiateAccountDeletion { deletionSuccess, errorMessage ->
+                accountViewModel.initiateAccountDeletion(auth = auth) { deletionSuccess, errorMessage ->
                     if (deletionSuccess) {
                         showToast(context, "Account successfully deleted.")
-                        viewModel.signOut()
+                        accountViewModel.signOut{
+                            sharedAppViewModel.updateAuthState()
+                        }
                     } else {
                         showToast(
                             context,

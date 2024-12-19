@@ -31,7 +31,7 @@ class SearchScreenViewModel @Inject constructor(
 ) :
     ViewModel() {
     // Auth
-    val isLoggedIn = mutableStateOf(false)
+    val auth = mutableStateOf(authRepository.getAuth())
 
     // Search bar
     val active = mutableStateOf(false)
@@ -52,10 +52,9 @@ class SearchScreenViewModel @Inject constructor(
 
     init {
         getHistory()
-
-        authRepository.getAuth().addAuthStateListener { auth ->
+        authRepository.getAuth().addAuthStateListener { newAuthState ->
             viewModelScope.launch(Dispatchers.IO) {
-                isLoggedIn.value = (auth.currentUser != null)
+                auth.value = newAuthState
                 getWordLists()
             }
         }
@@ -64,7 +63,7 @@ class SearchScreenViewModel @Inject constructor(
     private fun getHistory() {
         viewModelScope.launch(Dispatchers.IO) {
             val retrievedHistory = storeSearchHistory.getSearchHistorySync()
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 _history.value = retrievedHistory.toMutableList()
             }
         }
@@ -73,7 +72,7 @@ class SearchScreenViewModel @Inject constructor(
     fun addToHistory(query: String = searchQuery.value) {
         viewModelScope.launch(Dispatchers.Main) {
             _history.value.add(0, query)
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 storeSearchHistory.storeSearchHistory(_history.value)
             }
         }
@@ -82,7 +81,7 @@ class SearchScreenViewModel @Inject constructor(
     fun removeFromHistory(index: Int) {
         viewModelScope.launch(Dispatchers.Main) {
             _history.value.removeAt(index)
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 storeSearchHistory.storeSearchHistory(_history.value)
             }
         }
@@ -93,7 +92,7 @@ class SearchScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val words = wordRepository.searchWord(query).first()
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     _searchResults.value = words
                 }
             } catch (e: Exception) {
@@ -106,7 +105,12 @@ class SearchScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val message = if (word.id !in wordList.wordIds) {
                 val updatedWordIds = wordList.wordIds.toMutableList().apply { add(word.id!!) }
-                wordListRepository.addOrUpdateWordList(wordList.copy(wordIds = updatedWordIds, lastUpdatedAt = Date()))
+                wordListRepository.addOrUpdateWordList(
+                    wordList.copy(
+                        wordIds = updatedWordIds,
+                        lastUpdatedAt = Date()
+                    )
+                )
                 "${word.simplified} added to ${wordList.title}"
             } else {
                 "Word already in list"
@@ -116,16 +120,16 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     private suspend fun getWordLists() {
-            if (isLoggedIn.value) {
-                try {
-                    val wordlist = wordListRepository.getWordLists().first()
-                    withContext(Dispatchers.Main){
-                        _wordLists.value = wordlist
-                    }
-                } catch (e: Exception) {
-                    Log.e("SearchScreenVM", "Failed to fetch word lists", e)
-                    _wordLists.value = emptyList()
+        if (auth.value.currentUser != null) {
+            try {
+                val wordlist = wordListRepository.getWordLists().first()
+                withContext(Dispatchers.Main) {
+                    _wordLists.value = wordlist
                 }
+            } catch (e: Exception) {
+                Log.e("SearchScreenVM", "Failed to fetch word lists", e)
+                _wordLists.value = emptyList()
             }
         }
+    }
 }

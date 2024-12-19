@@ -12,7 +12,6 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
-import com.google.firebase.auth.FirebaseUser
 import com.yonasoft.jadedictionary.data.respositories.FirebaseAuthRepository
 import com.yonasoft.jadedictionary.presentation.screens.account.user_profile.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,9 +26,7 @@ class AccountViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val firebaseAuthRepository: FirebaseAuthRepository,
 ) : ViewModel() {
-    val networkAvailable = mutableStateOf(true)
-    val auth = mutableStateOf<FirebaseAuth?>(firebaseAuthRepository.getAuth())
-    val currentUser = mutableStateOf<FirebaseUser?>(null)
+
     val showForgotPasswordDialog = mutableStateOf(false)
 
     val isEditDisplayName = mutableStateOf(false)
@@ -53,20 +50,13 @@ class AccountViewModel @Inject constructor(
     )
 
     init {
-        auth.value!!.addAuthStateListener {
-            auth.value = it
-            currentUser.value = it.currentUser
-            it.currentUser?.let { user ->
-                val name = user.displayName ?: ""
-                currDisplayName.value = name
-                displayNameField.value = name
-            }
-        }
+
     }
 
     fun updateDisplayInfo(
         newDisplayName: String? = displayNameField.value,
         newPhoto: Uri? = selectedImage.value,
+        auth: FirebaseAuth,
     ) {
         var message = ""
         viewModelScope.launch(Dispatchers.IO) {
@@ -76,20 +66,19 @@ class AccountViewModel @Inject constructor(
                     newPhoto = newPhoto,
                 )
                 currDisplayName.value = newDisplayName ?: currDisplayName.value
-                currentUser.value!!.reload()
                 message = "Display info successfully changed!"
             } catch (e: Exception) {
                 message = "Error while changing display info: $e"
             } finally {
                 //Check if there is a change in name then if that new name already exists.
-                if (displayNameField.value.isNotEmpty() && displayNameField.value != currentUser.value!!.displayName){
+                if (displayNameField.value.isNotEmpty() && displayNameField.value != auth.currentUser!!.displayName) {
                     firebaseAuthRepository.checkDisplayNameExists(newDisplayName!!) {
                         if (it) {
                             message = "Display name already exists!"
                         }
                     }
                 }
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     showToast(context = context, message = message)
                 }
             }
@@ -144,22 +133,29 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun initiateAccountDeletion(onComplete: ((Boolean, String?) -> Unit?)? = null) {
+    fun initiateAccountDeletion(
+        auth: FirebaseAuth,
+        onComplete: ((Boolean, String?) -> Unit?)? = null
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = firebaseAuthRepository.deleteUserAccount()
             if (result.isSuccess) {
-                if (!currentUser.value!!.isAnonymous) showToast(
+                if (auth.currentUser!!.isAnonymous) showToast(
                     context, "Account successfully deleted.", Toast.LENGTH_LONG
                 )
             } else {
                 val exception = result.exceptionOrNull()
                 if (exception is FirebaseAuthRecentLoginRequiredException) {
-                    showToast(context, "Please re-login to delete your account.", Toast.LENGTH_LONG)
+                    showToast(
+                        context,
+                        "Please re-login to delete your account.",
+                        Toast.LENGTH_LONG
+                    )
                     if (onComplete != null) onComplete(
                         false, "Please re-login to delete your account."
                     )
                 } else {
-                    if (!currentUser.value!!.isAnonymous) showToast(
+                    if (auth.currentUser!!.isAnonymous) showToast(
                         context,
                         exception?.message ?: "An error occurred during account deletion.",
                         Toast.LENGTH_LONG
@@ -167,22 +163,29 @@ class AccountViewModel @Inject constructor(
                     if (onComplete != null) onComplete(false, exception?.message)
                 }
             }
-            auth.value!!.currentUser?.reload()
         }
     }
 
-    fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+    fun onSignInResult(
+        result: FirebaseAuthUIAuthenticationResult,
+        auth: FirebaseAuth,
+        updateAuth: () -> Unit
+    ) {
         val response = result.idpResponse
-        Log.d("signin", "got here...${response?.error}")
-        Log.d("signin", "got here...${result.resultCode}")
         if (result.resultCode == RESULT_OK) {
-            Log.d("auth logged in through auth ui", auth.value!!.currentUser!!.uid)
-            auth.value!!.currentUser?.reload()
+            updateAuth()
+            auth.currentUser?.let { user ->
+                Log.d("Auth", "User signed in: ${user.uid}")
+                // Update other UI-related states (if necessary)
+                currDisplayName.value = user.displayName ?: ""
+                displayNameField.value = user.displayName ?: ""
+            }
+            showToast(context, "Successfully signed in!")
         } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
+            // Handle sign-in failure
+            val error = response?.error?.errorCode
+            Log.e("Auth", "Sign-in failed. Error code: $error")
+            showToast(context, "Sign-in failed. Please try again.")
         }
     }
 
@@ -191,7 +194,6 @@ class AccountViewModel @Inject constructor(
             try {
                 FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        auth.value!!.currentUser?.reload()
                     } else {
                         Log.w("Auth", "signInAnonymously:failure", task.exception)
                         showToast(context, "Authentication failed.")
@@ -203,15 +205,17 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun signOut() {
+    fun signOut(updateAuth: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val success = firebaseAuthRepository.signOut(context) {
-                    auth.value!!.currentUser?.reload()
+                firebaseAuthRepository.signOut()
+                Log.d("signOut", "User signed out successfully")
+                withContext(Dispatchers.Main) {
+                    updateAuth() // Explicitly call to update the shared state
                     showToast(context, "Signed out!")
                 }
             } catch (e: Exception) {
-                Log.d("signout", "sign out error: ${e.message.toString()}")
+                Log.e("signOut", "Error signing out: ${e.message}")
             }
         }
     }

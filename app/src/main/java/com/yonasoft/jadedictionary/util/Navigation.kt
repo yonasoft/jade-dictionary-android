@@ -15,21 +15,23 @@ import com.yonasoft.jadedictionary.presentation.screens.lists.word_list_detail.W
 import com.yonasoft.jadedictionary.presentation.screens.practice.PracticeScreen
 import com.yonasoft.jadedictionary.presentation.screens.search.SearchScreen
 import com.yonasoft.jadedictionary.presentation.screens.settings.SettingsScreen
+import com.yonasoft.jadedictionary.presentation.screens.shared.SharedAppViewModel
 import com.yonasoft.jadedictionary.presentation.screens.support.SupportScreen
 import com.yonasoft.jadedictionary.presentation.screens.support.contact.ContactUsScreen
 import com.yonasoft.jadedictionary.presentation.screens.support.donate.DonateScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupNavigation(navController: NavHostController){
-    NavHost(navController = navController, startDestination = Screen.Search.route ){
-        composable(Screen.Search.route){
+fun SetupNavigation(navController: NavHostController, sharedAppViewModel: SharedAppViewModel) {
+
+    NavHost(navController = navController, startDestination = Screen.Search.route) {
+        composable(Screen.Search.route) {
             SearchScreen(navController = navController)
         }
-        composable(Screen.Lists.route){
+        composable(Screen.Lists.route) {
             ListsScreen(navController = navController)
         }
-        composable(Screen.AddList.route){
+        composable(Screen.AddList.route) {
             AddWordListScreen(navController = navController)
         }
         composable(
@@ -39,28 +41,32 @@ fun SetupNavigation(navController: NavHostController){
             )
         ) { backStackEntry ->
             // Retrieve the wordListId from the arguments
-            val wordListId = backStackEntry.arguments?.getString("wordListId") ?: 0 // Provide default value or handle error
+            val wordListId = backStackEntry.arguments?.getString("wordListId")
+                ?: 0 // Provide default value or handle error
             WordListDetailScreen(navController = navController, wordListId = wordListId.toString())
         }
-        composable(Screen.Practice.route){
-           PracticeScreen(navController = navController)
+        composable(Screen.Practice.route) {
+            PracticeScreen(navController = navController)
         }
-        composable(Screen.Account.route){
-            AccountScreen(navController = navController)
+        composable(Screen.Account.route) {
+            AccountScreen(
+                navController = navController,
+                sharedAppViewModel = sharedAppViewModel,
+            )
         }
-        composable(Screen.Settings.route){
+        composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
         }
-        composable(Screen.Support.route){
-           SupportScreen(navController = navController)
-        }
-        composable(Screen.FAQ.route){
+        composable(Screen.Support.route) {
             SupportScreen(navController = navController)
         }
-        composable(Screen.Contact.route){
+        composable(Screen.FAQ.route) {
+            SupportScreen(navController = navController)
+        }
+        composable(Screen.Contact.route) {
             ContactUsScreen(navController = navController)
         }
-        composable(Screen.Donate.route){
+        composable(Screen.Donate.route) {
             DonateScreen(navController = navController)
         }
     }

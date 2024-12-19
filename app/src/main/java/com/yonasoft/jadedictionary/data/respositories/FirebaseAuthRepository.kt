@@ -1,6 +1,5 @@
 package com.yonasoft.jadedictionary.data.respositories
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.firebase.ui.auth.AuthUI
@@ -261,13 +260,9 @@ class FirebaseAuthRepository(
     }
 
 
-    fun signOut(context: Context, onComplete: () -> Unit) {
-        AuthUI.getInstance()
-            .signOut(context)
-            .addOnCompleteListener {
-                onComplete()
-            }
-        return getAuth().signOut()
+    fun signOut() {
+        FirebaseAuth.getInstance()
+            .signOut()
     }
 }
 

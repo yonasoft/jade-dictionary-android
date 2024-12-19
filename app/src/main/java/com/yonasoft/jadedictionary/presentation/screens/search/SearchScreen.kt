@@ -45,7 +45,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchScreenViewModel 
 
     val query = viewModel.searchQuery
     val active = viewModel.active
-    val isLoggedIn = viewModel.isLoggedIn
+    val isLoggedIn = viewModel.auth.value.currentUser != null
     val history = viewModel.history.collectAsState()
     val searchResults = viewModel.searchResults.collectAsState()
     val wordLists = viewModel.wordLists.collectAsState()
@@ -102,7 +102,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchScreenViewModel 
                         isWordDialogOpen.value = true
                     },
                     isDialogOpen = isWordDialogOpen,
-                    dropdownMenu = if (isLoggedIn.value) { menuExpanded, setMenuExpanded ->
+                    dropdownMenu = if (isLoggedIn) { menuExpanded, setMenuExpanded ->
                         DropdownMenu(
                             expanded = menuExpanded,
                             onDismissRequest = { setMenuExpanded(false) }

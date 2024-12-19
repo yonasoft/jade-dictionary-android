@@ -19,12 +19,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.yonasoft.jadedictionary.data.constants_and_sealed.NavItems
 import com.yonasoft.jadedictionary.data.datastore.StoreSettings
 import com.yonasoft.jadedictionary.data.models.NavigationItem
 import com.yonasoft.jadedictionary.presentation.components.appbar.JadeAppBar
 import com.yonasoft.jadedictionary.presentation.components.drawer.JadeModalDrawerSheet
+import com.yonasoft.jadedictionary.presentation.screens.shared.SharedAppViewModel
 import com.yonasoft.jadedictionary.ui.theme.JadeDictionaryTheme
 import com.yonasoft.jadedictionary.util.SetupNavigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             AppContent(storeSettings)
         }
@@ -55,8 +58,10 @@ fun AppContent(storeSettings: StoreSettings) {
         JadeDictionaryApp()
     }
 }
+
 @Composable
 fun JadeDictionaryApp() {
+    val sharedAppViewModel = hiltViewModel<SharedAppViewModel>()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -96,7 +101,10 @@ fun JadeDictionaryApp() {
                 modifier = Modifier
             ) {
                 Surface(modifier = Modifier.padding(it)) {
-                    SetupNavigation(navController = navController)
+                    SetupNavigation(
+                        navController = navController,
+                        sharedAppViewModel = sharedAppViewModel,
+                    )
                 }
             }
         }
