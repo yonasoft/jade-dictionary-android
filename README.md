@@ -1,9 +1,10 @@
 
 
-##  Jade Chinese-English Dictionary (Android)
+##  Jade Chinese-English Dictionary (Android)(OLD)
 
  [![image](https://i.ibb.co/XDT9C6t/jadelogo.png)](https://jadedictionary.com/) 
 
+###Jade Chinese-English Dictionary 2: https://github.com/yonasoft/jade-dictionary-android2/tree/master
 Play Store: https://play.google.com/store/apps/details?id=com.yonasoft.jadedictionary
 
 ### For Web:
