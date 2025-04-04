@@ -7,7 +7,7 @@
 ### FOR Jade Chinese-English Dictionary 2(NEW): https://github.com/yonasoft/jade-dictionary-android2/tree/master
 Play Store: https://play.google.com/store/apps/details?id=com.yonasoft.jadedictionary
 
-### For Web:
+### For Web(OLD):
 Website: https://jadedictionary.com/
 <br/>
 GitHub: https://github.com/KevC000/jade-dictionary-web
